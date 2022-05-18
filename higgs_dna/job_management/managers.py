@@ -516,6 +516,7 @@ class CondorManager(JobsManager):
                         os.system("chmod 755 %s" % (self.batch_output_dir + "/*.tar.gz"))
 
                     elif self.host_params["copy_tar"] == "xrd":
+                        os.system("chmod 755 %s" % (self.batch_output_dir))
                         x,y = self.host_params["xrd_redirector"]
                         if not os.path.exists(self.batch_conda_tarfile):
                             os.system("xrdcp %s %s" % (self.conda_tarfile, self.batch_conda_tarfile.replace(x,y)))

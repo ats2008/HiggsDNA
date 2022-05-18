@@ -5,8 +5,8 @@
 # TODO : write instructions on how you could add a new host
 HOST_PARAMS = {
         "UCSD" : {
-            "xrd_redirector" : ("/ceph/cms/", "/ceph/cms/"),
-            "copy_tar" : "cp",
+            "xrd_redirector" : ("/ceph/cms/", "root://redirector.t2.ucsd.edu:1095//"),
+            "copy_tar" : "xrd",
             "gfal_redirector" : ("/ceph/cms/", "davs://redirector.t2.ucsd.edu:1095//"),
             "condor_base_path" : "/ceph/cms/store/user/USERNAME/HiggsDNA/DIRNAME/",
             "sites" : "T2_US_UCSD",

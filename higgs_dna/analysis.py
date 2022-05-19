@@ -4,6 +4,7 @@ import datetime
 import copy
 import json
 import pickle
+import dill
 import numpy
 
 import uproot
@@ -18,13 +19,27 @@ from higgs_dna.job_management.managers import LocalManager, CondorManager
 from higgs_dna.job_management.task import Task
 from higgs_dna.systematics.systematics_producer import SystematicsProducer
 from higgs_dna.taggers.tag_sequence import TagSequence
-from higgs_dna.utils.misc_utils import load_config, update_dict
-from higgs_dna.constants import NOMINAL_TAG, CENTRAL_WEIGHT
+from higgs_dna.taggers.golden_json_tagger import GoldenJsonTagger
+from higgs_dna.utils.misc_utils import load_config, update_dict, is_json_serializable
+from higgs_dna.constants import NOMINAL_TAG, CENTRAL_WEIGHT, BRANCHES
 from higgs_dna.utils.metis_utils import do_cmd
 
-def run_analysis(config, summary = {}):
-    """
 
+def run_analysis(config):
+    """
+    Function that gets run for each individual job. Performs the following:
+        1. Load events from input files
+        2. Add any relevant ``Sample`` metadata to events
+        3. Produce all ``WeightSystematic``s and ``SystematicWithIndependentCollection``s that **do not** rely on selections performed by or fields added by ``Tagger``s.
+        4. Apply ``TagSequence``
+        5. Produce all remaining ``WeightSystematic``s and ``SystematicWithIndependentCollection``s that **do** rely on selections performed by or fields added by ``Tagger``s.
+        6. Write output events 
+
+    In general, you should not have to call this function yourself.
+    It will be configured by the ``AnalysisManager`` for each job.
+
+    :param config: dictionary/json that specifies the physics content (samples, tag sequence, systematics) of a given job
+    :type config: dict or str
     """
     t_start = time.time()
 
@@ -33,69 +48,113 @@ def run_analysis(config, summary = {}):
             "config" : config
     }
 
-    # Load events
+    ### 1. Load events ###
     t_start_load = time.time()
+    events, sum_weights = AnalysisManager.load_events(config["files"], config["branches"], config["sample"])
 
-    events, sum_weights = AnalysisManager.load_events_TEMP(config["files"], config["branches"])
-    job_summary["n_events"] = len(events)
+
+    # Record n_events and sum_weights for scale1fb calculation
     job_summary["sum_weights"] = sum_weights
-
+    job_summary["outputs"] = {}
+    job_summary["n_events_selected"] = {}
     t_elapsed_load = time.time() - t_start_load
 
-    # 1. Add relevant sample metadata to events
-    t_start_samples = time.time()
-
-    sample = Sample(**config["sample"])
-    events = sample.prep(events)
-
-    t_elapsed_samples = time.time() - t_start_samples
-
-    # 2. Produce systematics
-    t_start_syst = time.time()
-
-    systematics_producer = SystematicsProducer(
-        name = config["name"],
-        options = config["systematics"],
-        sample = sample
-    )
-    events = systematics_producer.produce(events)
-
-    t_elapsed_syst = time.time() - t_start_syst
-
-    # 3. Apply tag sequence
-    t_start_taggers = time.time()
-
-    tag_sequence = TagSequence(
-        name = config["name"],
-        tag_list = config["tag_sequence"],
-        sample = sample
-    )
-    events, tag_idx_map = tag_sequence.run(events)
-
-    t_elapsed_taggers = time.time() - t_start_taggers
-
-    # 4. Compute remaining systematics that rely on tagger outputs
-    t_start_apply_syst = time.time()
-
-    events = systematics_producer.apply_remaining_weight_systs(events, tag_idx_map)
-
-    t_elapsed_apply_syst = time.time() - t_start_apply_syst
-    t_elapsed_syst += t_elapsed_apply_syst
-
-    job_summary["n_events_selected"] = {}
-    for syst_tag, syst_events in events.items():
-        job_summary["n_events_selected"][syst_tag] = len(syst_events)
-
-    # Write selected events
-    os.system("mkdir -p %s" % config["output_dir"])
-    if not config["remote_job"]: # a remote job that does not have write access to your home area (e.g. a T2 condor job, as opposed to an lxplus condor job)
-        output_name = config["job_batch_output_dir"] + "/output_job_%d" % config["job_id"]
+    # Sometimes this may be running on a remote node that does not have access to the full host filesystem.
+    # So, check if the relevant directories exist to save outputs in their full path and save them to current dir if not.
+    if not os.path.exists(config["dir"]):
+        output_dir = ""
+        config["summary_file"] = os.path.split(config["summary_file"])[-1]
     else:
-        output_name = "output_job_%d" % config["job_id"]
-    job_summary["outputs"] = AnalysisManager.write_events_TEMP(events, config["save_branches"], output_name) 
+        output_dir = os.path.abspath(config["dir"]) + "/"
+    output_name = output_dir + config["output_name"]
+
+
+
+    if events is None: # sometimes this happens when we don't have any data events passing golden json
+        job_summary["n_events"] = 0
+        job_summary["n_events_selected"][NOMINAL_TAG] = 0
+        t_elapsed_samples = 0
+        t_elapsed_syst = 0
+        t_elapsed_taggers = 0
+
+    else:
+        job_summary["n_events"] = len(events)
+        # Optional branch mapping in case you have different naming schemes, e.g. you want MET_T1smear_pt to be recast as MET_pt
+        # Can be separate for data and MC
+        if "branch_map" in config.keys():
+            if config["sample"]["is_data"]:
+                branch_map = config["branch_map"]["data"]
+            else:
+                branch_map = config["branch_map"]["mc"]
+
+            if branch_map:
+                for x in branch_map:
+                    logger.debug("[run_analysis] Replacing %s with %s." % (str(x[0]), str(x[1])))
+                    if isinstance(x[0], list):
+                        events[tuple(x[0])] = events[tuple(x[1])]
+                    else:
+                        events[x[0]] = events[x[1]]
+
+        ### 2. Add relevant sample metadata to events ###
+        t_start_samples = time.time()
+        sample = Sample(**config["sample"])
+        events = sample.prep(events)
+        t_elapsed_samples = time.time() - t_start_samples
+
+        ### 3. Produce systematics ###
+        systematics_producer = SystematicsProducer(
+            name = config["name"],
+            options = config["systematics"],
+            sample = sample
+        )
+        events = systematics_producer.produce_weights(events)
+
+        tag_sequence = TagSequence(
+            name = config["name"],
+            tag_list = config["tag_sequence"],
+            sample = sample
+        ) 
+
+        t_elapsed_syst = 0.
+        t_elapsed_taggers = 0.
+
+        # Systematics variations
+        for syst_name, ic_syst in systematics_producer.independent_collections.items():
+            if not systematics_producer.do_variations:
+                continue
+            current_time = time.time()
+            ics = ic_syst.produce(events)
+            t_elapsed_syst += time.time() - current_time        
+
+            for ic_name, events_ic in ics.items():
+                # If the IC modifies the nominal value of a branch, update this in the nominal events
+                if ic_name == "nominal":
+                    events = events_ic
+                    continue
+
+                # Otherwise, this is an up/down variation
+                syst_tag = syst_name + "_" + ic_name
+                
+                current_time = time.time()
+                events_ic, tag_idx_map = tag_sequence.run(events_ic, syst_tag)
+                t_elapsed_taggers += time.time() - current_time
+
+                current_time = time.time()
+                events_ic = systematics_producer.apply_remaining_weight_systs(events_ic, syst_tag, tag_idx_map)
+                t_elapsed_syst += time.time() - current_time
+
+                job_summary["outputs"][syst_tag] = AnalysisManager.write_events(events_ic, config["variables_of_interest"], output_name, syst_tag)       
+                job_summary["n_events_selected"][syst_tag] = len(events_ic) 
+
+        # Nominal events
+        events, tag_idx_map = tag_sequence.run(events, NOMINAL_TAG)
+        events = systematics_producer.apply_remaining_weight_systs(events, NOMINAL_TAG, tag_idx_map)
+        job_summary["outputs"][NOMINAL_TAG] = AnalysisManager.write_events(events, config["variables_of_interest"], output_name, NOMINAL_TAG)
+        job_summary["n_events_selected"][NOMINAL_TAG] = len(events)
 
     t_elapsed = time.time() - t_start
 
+    # Calculate performance metrics
     job_summary["time"] = t_elapsed
     job_summary["time_frac_load"] = t_elapsed_load / t_elapsed
     job_summary["time_frac_samples"] = t_elapsed_samples / t_elapsed
@@ -103,152 +162,222 @@ def run_analysis(config, summary = {}):
     job_summary["time_frac_taggers"] = t_elapsed_taggers / t_elapsed
 
     job_summary["successful"] = True
-    summary["job_%d" % config["job_id"]] = job_summary
 
-    if not config["remote_job"]:
-        summary_file = config["summary_file"]
-    else:
-        summary_file = config["summary_file"].split("/")[-1]
-    with open(summary_file, "w") as f_out:
+    # Dump json summary
+    with open(config["summary_file"], "w") as f_out:
         json.dump(job_summary, f_out, sort_keys = True, indent = 4)
-
     return job_summary
 
 
 class AnalysisManager():
     """
+    Manages the running of an entire analysis.
+    See HiggsDNA tutorial for more details:
+        - https://sam-may.github.io/higgs_dna_tutorial.github.io/
 
+    The ``AnalysisManager`` class is designed such that you can launch an instance through ``scripts/run_analysis.py``, kill the script, and then relaunch to resume running your analysis.
+    ``AnalysisManager`` will periodically pickle itself to enable saving/loading its progress.
+    This is safe to do and you don't need to worry about jobs being forgotten about and/or being submitted multiple times.
+    Most attributes are not allowed to change when loading to prevent things like inconsistent mappings between input files and jobs between runnings. 
+    
+    If you are running an entirely new analysis, you must specify a ``config`` json or dict with the fields listed in ``REQUIRED_FIELDS``.
+
+    If you are resuming a previously paused/killed instance, it is enough to just pass the ``output_dir`` of your previous run.
+    When resuming a previously paused/killed instance (i.e. same ``output_dir``), it is possible to change the attributes listed in ``OVERWRITABLE_FIELDS``.
+    All other attributes will be taken from the pickled instance.
+
+    :param output_dir: path to output directory
+    :type output_dir: str
+    :param config: json/dictionary that specifies the physics content (samples, tag sequence, systematics) of an entire analysis
+    :type config: dict or str, optional if and only if you specify an ``output_dir`` that has a pickled ``AnalysisManager`` instance from a previous run
     """
-    def __init__(self, config = {}, name = None, function = None, samples = None, tag_sequence = None, systematics = None, variables_of_interest = None, batch_system = "local", n_files_per_job = 10, output_dir = "output", merge_outputs = False, resubmit_retired = False, **kwargs):
-        # TODO: check that config dict has all required fields
-        self.config = copy.deepcopy(load_config(config))
+    REQUIRED_FIELDS = ["variables_of_interest", "tag_sequence", "systematics", "samples", "branches"] # these fields **must** be present in config file
+    OVERWRITABLE_FIELDS = ["merge_outputs", "unretire_jobs", "retire_jobs", "reconfigure_jobs", "n_cores", "log-level", "log-file", "short"] # these fields can be safely changed between different runs
+    # TODO: add functionality for switching between batch_system = "local" and batch_system = "condor" between runs
+    DEFAULTS = { # kwargs with default values
+            "name" : "my_analysis", # doesn't affect actual code, just for more informative printouts
+            "function" : {
+                "module_name" : "higgs_dna.analysis",
+                "function_name" : "run_analysis"
+            },
+            "batch_system" : "local",
+            "fpo" : None, # number of input files per output file (i.e. per job)
+            "n_cores" : 4, # number of cores for local running
+            "merge_outputs" : False,
+            "unretire_jobs" : False,
+            "retire_jobs" : False,
+            "reconfigure_jobs" : False,
+            "short" : False # run only 1 job per sample x year
+    }
 
-        host = do_cmd("hostname")
-        if "t2.ucsd" in host:
-            self.host = "UCSD"
-        elif "lxplus" in host:
-            self.host = "lxplus"
-
-        self.user = do_cmd("whoami")
-
+    def __init__(self, output_dir = "output", config = {}, **kwargs):
         self.output_dir = os.path.abspath(output_dir)
-
-        if (batch_system == "condor" or batch_system == "HTCondor") and "batch_output_dir" not in kwargs and self.host in ["UCSD"]:
-            self.batch_output_dir = "/hadoop/cms/store/user/%s/HiggsDNA/%s/" % (self.user, output_dir)
-        else:
-            self.batch_output_dir = os.path.abspath(kwargs.get("batch_output_dir", self.output_dir))
-
-        self.merge_outputs = merge_outputs
-        self.resubmit_retired = resubmit_retired
-
-        # Check if a pkl file for this analysis manager is present and load previous progress if so
-        self.summary_file = self.output_dir + "/summary.json"
         self.pickle_file = self.output_dir + "/analysis_manager.pkl"
+        self.summary_file = self.output_dir + "/summary.json"
 
-        if os.path.exists(self.pickle_file):
-            logger.info("[AnalysisManager : __init__] Found previous pickle file '%s' for this analysis, loading previous state and progress." % (self.pickle_file))
-            logger.warning("[AnalysisManager : __init__] We are loading a saved pickle file '%s' -- please be sure this behavior is inteneded. If you want to run a completely new analysis, please specify a new output directory or run with the option TODO" % (self.pickle_file))
+        # Resuming a previous run?
+        #   Check if there is a pickled AnalysisManager instance. If so, you only need to properly specify ``output_dir`` and everything else will be loaded from the pkl.
+        if os.path.exists(self.pickle_file): # resuming a previous run
+            logger.warning("[AnalysisManager : __init__] We are loading a saved pickle file '%s' -- please be sure this behavior is inteneded. If you want to run a completely new analysis, please specify a new ``output_dir``." % (self.pickle_file))
+            if config:
+                logger.warning("[AnalysisManager : __init__] A non-empty ``config`` arg was passed. This will be ignored and the ``AnalysisManager`` state will be loaded from the pkl file. If you are passing the same ``config`` that was used previously, it is safe to ignore this warning.")
+            
+            # Load pickled ``AnalysisManager`` instance
             with open(self.pickle_file, "rb") as f_in:
-                saved_analysis_manager = pickle.load(f_in)
+                saved_analysis_manager = dill.load(f_in)
+            for attr, value in saved_analysis_manager.__dict__.items():
+                logger.debug("[AnalysisManager : __init__] Setting attribute '%s' as : %s" % (attr, str(value)))
+                setattr(self, attr, value)
+            
+            # Update overwritable kwargs and warn about any others
+            for k,v in kwargs.items():
+                if k in self.OVERWRITABLE_FIELDS:
+                    # Check if this is already present in pickled instance, and if so, let the user know if it is being changed from its previous value.
+                    if hasattr(self, k):
+                        if not v == getattr(self, k):
+                            logger.info("[AnalysisManager : __init__] Attribute '%s' is being updated from its previous value of '%s' -> '%s'." % (k, getattr(self, k), v))
+                    logger.debug("[AnalysisManager : __init__] Setting attribute '%s' as : '%s'." % (k, v)) 
+                    setattr(self, k, v)
+                elif hasattr(self, k):
+                    logger.warning("[AnalysisManager : __init__] kwarg '%s' with value '%s' was given to constructor, but will be ignored in favor of the pickled value '%s'." % (k, v, getattr(self, k)))
+                else:
+                    logger.warning("[AnalysisManager : __init__] Not sure what to do with kwarg '%s' with value '%s'." % (k, v))
 
-            for attr, value in saved_analysis_manager.__dict__.items(): 
-                logger.debug("[AnalysisManager : __init__] attribute '%s' : %s" % (attr, str(value)))
-                setattr(self, attr, value) 
+            # Modify ``JobsManager`` and ``Task`` objects based on any updated values for ``OVERWRITABLE_FIELDS``
+            self.modify_jobs()
 
-            # Overwrite the saved value for these with the values given from command line
-            self.merge_outputs = merge_outputs
-            self.resubmit_retired = resubmit_retired
 
-            if self.resubmit_retired:
-                logger.debug("[AnalysisManager : __init__] Unretiring jobs that failed up to the maximum number of retries.")
-                remerge = False
-                for task in self.jobs_manager.tasks:
-                    unretired_jobs = task.unretire_jobs()
-                    remerge = remerge or unretired_jobs
-
-                if remerge: # if at any point we unretired jobs, we should remerge outputs
-                    self.jobs_manager.remerge = True # however, we only want to update if we need to remerge
-                    # This prevents the scenario of user ctrl+c-ing after running with --resubmit_retired, running again without that option, and us mistakenly thinking that we no longer need to remerge.
-
-        # Otherwise, run normal constructor
+        # Running a new analysis
         else:
-            # First, check if the config passes these options
-            fields = ["name", "function", "variables_of_interest", "tag_sequence", "systematics", "branches", "samples"]
-            for field in fields:
-                if field in self.config.keys():
-                    setattr(self, field, self.config[field])
+            self.config = copy.deepcopy(load_config(config))
+            logger.info("[AnalysisManager : __init__] Initializing a new AnalysisManager instance, as no previous pkl file was found to load state from.")
 
-            # Second, check if they were provided manually.
-            # If provided both through the config and explicitly, we take the explicitly provided argument.
-            args = [name, function, variables_of_interest, samples, tag_sequence, systematics]
-            for field, arg in zip(fields, args):
-                if arg is not None:
-                    if hasattr(self, field):
-                        logger.warning("[AnalysisManager : __init__] Argument '%s' was provided both through the config json and explicitly in constructor. We will take the version provided by the constructor." % field)
-                    setattr(self, field, arg)
-                    self.config[field] = arg # update internal config dict to properly document details for this analysis
+            # Check for required fields in config
+            if any([x not in config.keys() for x in self.REQUIRED_FIELDS]):
+                logger.exception("[AnalysisManager : __init__] The fields '%s' are required to be present in the ``config`` json/dict, but one or more were not found. The found keys were : '%s'." % (str(self.REQUIRED_FIELDS), str(config.keys())))
+                raise ValueError()
+            # Set config and kwargs as attributes
+            for dicts in [config, kwargs]:
+                for k,v in dicts.items():
+                    logger.debug("[AnalysisManager : __init__] Setting attribute '%s' as : '%s'." % (k, v))
+                    setattr(self, k, v)
+            # Set any remaining attributes from default values
+            for k,v in self.DEFAULTS.items():
+                if not hasattr(self, k):
+                    setattr(self, k, v)
 
+            self.update_samples()
 
-            self.batch_system = batch_system
-            self.n_files_per_job = n_files_per_job
-
-            for dir in [self.output_dir, self.batch_output_dir]:
-                os.system("mkdir -p %s" % dir)
+            # make output dir
+            os.system("mkdir -p %s" % (self.output_dir))
 
             if self.variables_of_interest is None:
                 self.variables_of_interest = []
-
-            self.save_branches = self.variables_of_interest + [CENTRAL_WEIGHT] #TODO: save other weight variations as well
-
-            if self.name is None:
-                self.name = "my_analysis"
-
+            
+            
             # Create jobs manager
-            if self.batch_system == "local":
-                self.jobs_manager = LocalManager()
-            elif self.batch_system == "HTCondor" or self.batch_system == "condor":
+            if self.batch_system.lower() in ["condor", "htcondor"]:
                 self.jobs_manager = CondorManager(output_dir = self.output_dir)
+            elif self.batch_system.lower() == "local":
+                self.jobs_manager = LocalManager(output_dir = self.output_dir, n_cores = self.n_cores)
+
+            # Check if --no_systematics option was given
+            if self.no_systematics:
+                self.systematics["no_systematics"] = True
 
             # Create samples manager
-            self.sample_manager = SampleManager(**self.config["samples"])
+            self.sample_manager = SampleManager(**self.samples)
 
-            logger.info("[AnalysisManager : __init__] Created AnalysisManager with following specifications:")
-            for attr, val in self.__dict__.items():
-                message = "\t '%s' : %s" % (attr, str(val))
-                if attr == "config":
-                    logger.debug(message)
-                else:
-                    logger.info(message)
-
+            # Test construction of tag sequence and systematics producer
             self.test_construction()
-        
+
             self.prepared_analysis = False
 
+
+    def update_samples(self):
+        """
+        Propagate correct behavior of --sample_list and --years args from command line.
+        """
+        # Check for command line updates to samples
+        if hasattr(self, "years"):
+            years = self.years.split(",")
+            if not years == self.samples["years"]:
+                logger.warning("[AnalysisManager : update_samples] Years were provided through the config as '%s', but were also specified from the command line as '%s', which is the version we will use." % (str(self.samples["years"]), str(years)))
+                self.samples["years"] = years
+
+        if hasattr(self, "sample_list"):
+            samples = self.sample_list.split(",")
+            if not samples == self.samples["sample_list"]:
+                logger.warning("[AnalysisManager : update_samples] Sample list was provided through the config as '%s', but was also specified from the command line as '%s', which is the version we will use." % (str(self.samples["sample_list"]), str(samples)))
+                self.samples["sample_list"] = samples
+
+
+    def modify_jobs(self):
+        """
+        Modify the behavior of ``JobsManager`` and ``Task`` instances based on new values given through kwargs.
+        """
+        # Check if we switched batch system
+        if self.batch_system == "local" and not isinstance(self.jobs_manager, LocalManager):
+            logger.info("[AnalysisManager : modify_jobs] Converting all unfinished jobs from CondorJob -> LocalJob.")
+            self.jobs_manager = self.jobs_manager.convert_to_local() # convert from CondorManager -> LocalManager
+        elif self.batch_system.lower() in ["condor", "HTCondor"] and not isinstance(self.jobs_manager, CondorManager):
+            logger.info("[AnalysisManager : modify_jobs] Converting all unfinished jobs from LocalJob -> CondorJob.")
+            self.jobs_manager = self.jobs_manager.convert_to_condor() # convert from LocalManager -> CondorManager
+            
+
+        # Update n_cores for ``LocalManager``
+        if isinstance(self.jobs_manager, LocalManager):
+            self.jobs_manager.n_cores = self.n_cores
+
+        # Check if we were previously running with --short, but was removed for this run
+        if not self.short:
+            prev_short = any([task.max_jobs >= 0 for task in self.jobs_manager.tasks])
+            if prev_short:
+                logger.info("[AnalysisManager : modify_jobs] It appears you previously ran with the ``--short`` option but have now removed it. Will submit the full set of jobs for each task.")
+                for task in self.jobs_manager.tasks:
+                    task.max_jobs = -1
+                    task.create_jobs() # create the new jobs (old ones will not be overwritten)
+                    self.jobs_manager.customized_jobs = False # need to configure the new jobs
+                self.jobs_manager.remerge = self.merge_outputs
+
+        # Reconfigure jobs
+        if self.reconfigure_jobs:
+            logger.info("[AnalysisManager : modify_jobs] Forcing reconfiguration of jobs (rewriting python configs, executables and condor_submit files).")
+            self.jobs_manager.customized_jobs = False
+            self.jobs_manager.submit_jobs(summarize = False, dry_run = True)
+
+        # Retire jobs
+        if self.retire_jobs:
+            logger.warning("[AnalysisManager : modify_jobs] Retiring all unfinished jobs.")
+            for task in self.jobs_manager.tasks:
+                task.retire_jobs()
+
+        # If ``merge_outputs`` and ``unretire_jobs`` selected, check if any jobs actually get unretired. If so, we need to remerge.
+        if self.unretire_jobs:
+            logger.info("[AnalysisManager : modify_jobs] Unretiring jobs that failed up to the maximum number of retries.")
+            unretired_jobs = False
+            for task in self.jobs_manager.tasks:
+                task_unretired_jobs = task.unretire_jobs()
+                unretired_jobs = unretired_jobs or task_unretired_jobs 
+
+            self.jobs_manager.remerge = unretired_jobs and self.merge_outputs
+
+
     def test_construction(self):
+        """
+        Construct, but do not run, TagSequence and SystematicsProducer.
+        """
         logger.info("[AnalysisManager: test_construction] Testing TagSequence and SystematicsProducer construction.")
-        test_syst = SystematicsProducer(options = self.config["systematics"])
-        test_tags = TagSequence(tag_list = self.config["tag_sequence"])
+        test_syst = SystematicsProducer(options = self.systematics)
+        test_tags = TagSequence(tag_list = self.tag_sequence)
         logger.info("[AnalysisManager: test_construction] Constructed TagSeqeunce and SystematicsProducer successfully.")
 
 
-    @staticmethod
-    def create_chunks(lst, n):
-        """Yield successive n-sized chunks from lst."""
-        chunks = []
-        for i in range(0, len(lst), n):
-            chunks.append(lst[i:i+n])
-        return chunks
-
-
-    def run(self, max_jobs = None):
+    def run(self):
         """
-        Create SystematicsProducer and TagSequence for each sample/year,
-        split input files into jobs,
-        submit & monitor jobs (through higgs_dna.job_management.JobsManager),
-        and summarize.
-
-        :param max_jobs: maximum number of total jobs to run, defaults to None. If None, will run all jobs. If an int > 0, will run at most that many jobs per sample.
-        :type max_jobs: int
+        Prepare and run analysis until finished, then merge outputs if requested and print out some diagnostic info.
+        The AnalysisManager frequently pickles itself throughout this function, so it can easily pick up right where it
+        left off if the script is paused or killed.
         """
         logger.debug("[AnalysisManager : run] Running analysis '%s'." % self.name)
 
@@ -257,35 +386,24 @@ class AnalysisManager():
 
         # Load samples
         self.samples = self.sample_manager.get_samples()
+        self.save()
 
         if not self.prepared_analysis:
             self.prepare_analysis()
-
-        n_input_files = 0
-        n_tasks = 0
-        n_jobs = 0
-        for task in self.jobs_manager.tasks:
-            n_tasks += 1
-            n_input_files += len(task.files)
-            n_jobs += len(task.jobs)
-
-        logger.info("[AnalysisManager : run] Running %d tasks with %d total input files split over %d total jobs." % (n_tasks, n_input_files, n_jobs))
-        os.system("sleep 2s")
-
-        summary = self.jobs_manager.submit_jobs(summarize = True)
-        self.save()
-        idx = 1
-        while not self.jobs_manager.complete:
-            os.system("sleep 1s")
-            summarize = idx % 10 == 0
-            summary = self.jobs_manager.submit_jobs(summarize = summarize)
             self.save()
-            idx += 1
 
+        logger.info("[AnalysisManager : run] Running %d tasks with %d total input files split over %d total jobs." % (len(self.jobs_manager.tasks), sum([len(x.files) for x in self.jobs_manager.tasks]), sum([len(x.jobs) for x in self.jobs_manager.tasks])))
+
+        summary = self.jobs_manager.submit_jobs()
+        while not self.jobs_manager.complete():
+            self.save()
+            summary = self.jobs_manager.submit_jobs()
 
         if self.merge_outputs:
             self.jobs_manager.merge_outputs(self.output_dir)
             self.save()
+
+        self.jobs_manager.summarize()
 
         end = time.time() - start
         logger.info("[AnalysisManager : run] Finished running analysis '%s'. Elapsed time: %s (hours:minutes:seconds)." % (self.name, str(datetime.timedelta(seconds = end))))
@@ -294,10 +412,14 @@ class AnalysisManager():
             logger.debug("\n[AnalysisManager : run] Task '%s', PERFORMANCE summary" % (task))
             logger.debug("\t [PERFORMANCE : %s] Processed %d total events in %s (hours:minutes:seconds) of total runtime (%.2f Hz)." % (task, info["physics"]["n_events_initial"], str(datetime.timedelta(seconds = info["performance"]["time"])), float(info["physics"]["n_events_initial"]) / info["performance"]["time"] ))
             for portion in ["load", "syst", "taggers"]:
+                if not info["performance"]["time"] > 0:
+                    continue
                 logger.debug("\t [PERFORMANCE : %s] Fraction of runtime spent on %s: %.2f percent" % (task, portion, (100. * info["performance"]["time_%s" % portion]) / info["performance"]["time"]))
 
             logger.debug("[AnalysisManager : run] Task '%s', PHYSICS summary" % (task)) 
             for syst_tag, n_events in info["physics"]["n_events_selected"].items():
+                if not info["physics"]["n_events_initial"] > 0:
+                    continue
                 logger.debug("\t [PHYSICS : %s] events set '%s' has eff. of %.2f percent (all taggers)" % (task, syst_tag, (float(n_events) * 100.) / float(info["physics"]["n_events_initial"])))
             if "scale1fb" in info["physics"].keys():
                 logger.debug("\t [PHYSICS : %s] With a cross section times BF of %.9f pb and a sum of weights of %.9f, scale1fb for this sample is %.9f" % (task, info["physics"]["norm_factor"], info["physics"]["sum_weights"], info["physics"]["scale1fb"]))
@@ -316,125 +438,85 @@ class AnalysisManager():
 
 
     def prepare_analysis(self):
-        idx = 0
         for sample in self.samples:
-            file_splits = self.create_chunks(sample.files, self.n_files_per_job)
-
-            name = sample.name
-            output_dir = self.output_dir + "/" + name + "/"
-            batch_output_dir = self.batch_output_dir + "/" + name + "/"
-
-            # 1. Branches to load/save
+            task_branches = self.branches
+            # Add extra branches which are always loaded, even if they are not explicitly specified in config
             if sample.is_data:
-                task_branches = [x for x in self.branches if not ("gen" in x or "Gen" in x)]
-                task_save_branches = [x for x in self.save_branches if not ("weight" in x or "gen" in x or "Gen" in x)]
-                for idx, x in enumerate(task_save_branches):
-                    if isinstance(x, list):
-                        for y in x:
-                            if "weight" in y or "gen" in y or "Gen" in y:
-                                task_save_branches.remove(x)
+                task_branches += BRANCHES["data"][sample.year] + BRANCHES["data"]["any"]
             else:
-                task_branches = [x for x in self.branches if not ("HLT" in x)]
-                task_save_branches = self.save_branches
+                task_branches += BRANCHES["mc"][sample.year] + BRANCHES["mc"]["any"]
 
-            # 2. Sample details
-            task_sample = copy.deepcopy(sample)
-            task_sample.files = [x.__dict__ for x in task_sample.files] # make compatible with json
-            task_sample = task_sample.__dict__ # make compatible with json
+            task_branches = list(set(task_branches))
 
-            # 3. Systematics
-            task_systematics = copy.deepcopy(self.config["systematics"])
-            if sample.systematics is not None:
-                task_systematics = update_dict(
-                        original = task_systematics,
-                        new = sample.systematics
-                )
+            # Make Sample instance json-able so we can save it in job config files
+            jsonable_sample = copy.deepcopy(sample)
+            jsonable_sample.files = [x.__dict__ for x in jsonable_sample.files]
+            jsonable_sample = jsonable_sample.__dict__
+            config = {
+                "sample" : copy.deepcopy(jsonable_sample),
+                "branches" : task_branches
+            }
+            for x in ["systematics", "tag_sequence", "function", "variables_of_interest"]:
+                config[x] = copy.deepcopy(getattr(self, x))
 
-            # 4. Tag Sequence
-            task_tag_sequence = copy.deepcopy(self.config["tag_sequence"])
+            if "branch_map" in self.config.keys():
+                config["branch_map"] = copy.deepcopy(self.config["branch_map"])
 
-            # 5. Wrapper function
-            function = copy.deepcopy(self.config["function"])
-
-            # 6. Job Details
-            task = Task(
-                    name = name,
-                    output_dir = output_dir,
-                    batch_output_dir = batch_output_dir,
-                    n_files_per_job = 10 if "Data" in name else 3, # TODO: assign files per job in more intelligent way 
-                    files = sample.files,
-                    config = {
-                        "sample" : task_sample,
-                        "systematics" : task_systematics,
-                        "tag_sequence" : task_tag_sequence,
-                        "function" : function,
-                        "branches" : task_branches,
-                        "save_branches" : task_save_branches
-                    }
+            self.jobs_manager.add_task(
+                    Task(
+                        name = sample.name,
+                        output_dir = self.output_dir + "/" + sample.name,
+                        files = sample.files,
+                        config = config,
+                        fpo = self.fpo if self.fpo is not None else sample.fpo, 
+                        scale1fb = sample.scale1fb,
+                        max_jobs = 1 if self.short else -1
+                    )
             )
-
-            self.jobs_manager.add_task(task)
-
         self.prepared_analysis = True
 
 
     def save(self):
         with open(self.pickle_file.replace(".pkl", "_temp.pkl"), "wb") as f_out:
-            pickle.dump(self, f_out)
+            dill.dump(self, f_out)
 
         os.system("mv %s %s" % (self.pickle_file.replace(".pkl", "_temp.pkl"), self.pickle_file))
 
 
     def summarize(self):
         """
-        TODO
+        Save map of sample_name : process_id so different samples can be distinguished in merged outputs.
+        TODO: aggregate diagnostic info from Taggers and Systematics 
         """
-        self.summary = {}
-        self.summary["sample_id_map"] = self.sample_manager.process_id_map
+        self.summary = {
+            "sample_id_map" : self.sample_manager.process_id_map,
+            "config" : self.config
+        }
+
+        for k,v in vars(self).items():
+            if k == "summary":
+                continue
+            if k in self.summary["config"].keys():
+                continue # don't double save things
+            if is_json_serializable(v):
+                self.summary[k] = v
 
         with open(self.summary_file, "w") as f_out:
             json.dump(self.summary, f_out, sort_keys = True, indent = 4)
 
-        return
-
-
-    def construct_analysis(self, sample):
-        """
-        Construct the SystematicsProducer and TagSequence objects specific to this sample/year
-
-        :param sample: the sample (along with year) to create SystematicsProducer and TagSequence for
-        :type sample: higgs_dna.samples.sample.Sample
-        :return: SystematicsProducer and TagSequence objects specific to this sample/year
-        :rtype: higgs_dna.systematics.systematics_producer.SystematicsProducer, higgs_dna.taggers.tag_sequence.TagSequence
-        """
-        # Create systematics producer specific to this sample (a specific sample/year may have additional systematics)
-        sample_systematics_producer = SystematicsProducer(
-                options = self.systematics_producer.options,
-                name = sample.name,
-                sample = sample
-        )
-        if sample.systematics is not None:
-            sample_systematics_producer.add_systematics(sample.systematics)
-
-        # Create tag sequence specific to this sample (a specific sample/year may have different selection options)
-        #sample_tag_sequence = copy.deepcopy(self.tag_sequence)
-        sample_tag_sequence = TagSequence(tag_list = self.tag_sequence)
-        sample_tag_sequence.name = sample.name
-
-        for attr in ["year", "process", "is_data"]:
-            sample_tag_sequence.update_tagger_info(
-                    attr = attr, 
-                    value = getattr(sample, attr)
-            )
-
-        return sample_systematics_producer, sample_tag_sequence
-
 
     @staticmethod
-    def load_events_TEMP(files, branches):
+    def load_events(files, branches, sample):
         """
-        Temporary function: should be replaced by a dedicated class/function which optimally loads events from multiple files. 
-        Maybe coffea features can help here? 
+        Load all branches in ``branches`` from "Events" tree from all nanoAODs in ``files`` into a single zipped ``awkward.Array``.
+        Also calculates and returns the sum of weights from nanoAOD "Runs" tree.        
+
+        :param files: list of files
+        :type files: list of str
+        :param branches: list of branches. If any branches are requested that are not present in the input nanoAOD, they will be silently omitted.
+        :type branches: list of str or tuple
+        :returns: array of events, sum of weights
+        :rtype: awkward.Array, float
         """
         events = []
         sum_weights = 0
@@ -446,43 +528,67 @@ class AnalysisManager():
                 elif "genEventCount_" in runs.keys() and "genEventSumw_" in runs.keys():
                     sum_weights += numpy.sum(runs["genEventSumw_"].array())
                 tree = f["Events"]
-                events.append(tree.arrays(branches, library = "ak", how = "zip"))
+                trimmed_branches = [x for x in branches if x in tree.keys()]
+                events_file = tree.arrays(trimmed_branches, library = "ak", how = "zip")
+                if sample["is_data"] and sample["year"] is not None:
+                    golden_json_tagger = GoldenJsonTagger(is_data = sample["is_data"], year = sample["year"])
+                    events_file = golden_json_tagger.select(events_file)
+                    if not len(events_file) > 0:
+                        logger.debug("[AnalysisManager : load_events] File '%s' skipped entirely because no events are in golden json." % (file))
+                        continue
+                events.append(events_file)
+
+                logger.debug("[AnalysisManager : load_events] Loaded %d events from file '%s'." % (len(events_file), file))
+
+        if not len(events) >= 1: 
+            return None, None
 
         events = awkward.concatenate(events)
         return events, sum_weights
 
+
     @staticmethod
-    def write_events_TEMP(events, save_branches, name):
+    def write_events(events, save_branches, name, syst_tag):
         """
-        Temporary function: should be replaced by configurable way to write events in multiple output formats.
-        Maybe coffea features can help here?
+        For each set of events in ``events``, saves all fields in ``save_branches`` to a .parquet file.
+
+        :param events: dictionary of systematic variations with independent collections : array of events
+        :type events: dict
+        :param save_branches: list of fields to save in output file
+        :type save_branches: list of str or tuple or list
+        :param name: name template for output files, which will be updated based on each key of ``events``
+        :type name: str
+        :returns: dictionary of keys from ``events`` : parquet file
+        :rtype: dict
         """
-        outputs = {}
+        out_name = "%s_%s.parquet" % (name, syst_tag)
 
-        # Make any missing dirs/subdirs
-        #dirs = "/".join(name.split("/")[:-1])
-        #os.system("mkdir -p %s" % dir)
+        if not len(events) >= 1:
+            return out_name 
 
-        for syst_tag, syst_events in events.items():
-            save_map = {}
-            for branch in save_branches:
-                if isinstance(branch, tuple) or isinstance(branch, list):
-                    save_name = "_".join(branch)
-                    if isinstance(branch, list):
-                        branch = tuple(branch)
-                else:
-                    save_name = branch
-                save_map[save_name] = syst_events[branch]
+        save_map = {}
+        for branch in save_branches:
+            if isinstance(branch, tuple) or isinstance(branch, list):
+                save_name = "_".join(branch)
+                if isinstance(branch, list):
+                    branch = tuple(branch)
+            else:
+                save_name = branch
+            if isinstance(branch, tuple):
+                present = branch[1] in events[branch[0]].fields
+            else:
+                present = branch in events.fields
+            if not present:
+                logger.warning("[AnalysisManager : write_events] Branch '%s' was not found in events array. This may be expected (e.g. gen info for a data file), but please ensure this makes sense to you." % str(branch))
+                continue
+            save_map[save_name] = events[branch]
 
-            for field in syst_events.fields:
-                if "weight_" in field and not field in save_map.keys():
-                    save_map[field] = syst_events[field]
+        for field in events.fields:
+            if "weight_" in field and not field in save_map.keys():
+                save_map[field] = events[field]
 
-            syst_events = awkward.zip(save_map)
-            out_name = "%s_%s.parquet" % (name, syst_tag)
+        events = awkward.zip(save_map)
 
-            logger.debug("[AnalysisManager : write_events_TEMP] Writing output file '%s'." % (out_name))
-            awkward.to_parquet(syst_events, out_name) 
-            outputs[syst_tag] = out_name
-
-        return outputs
+        logger.debug("[AnalysisManager : write_events] Writing output file '%s'." % (out_name))
+        awkward.to_parquet(events, out_name) 
+        return out_name

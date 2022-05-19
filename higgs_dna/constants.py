@@ -1,24 +1,52 @@
 CENTRAL_WEIGHT = "weight_central" # name of the central weight branch
 NOMINAL_TAG = "nominal" # name of the nominal events (relevant when we have multiple sets of events corresponding to systematics with independent collections)
 
-CONDOR_EXE_TEMPLATE = "higgs_dna/job_management/condor/executable_template.sh"
-CONDOR_SUB_TEMPLATE = "higgs_dna/job_management/condor/condor_submit_template.txt"
-CONDOR_EXE_TEMPLATE_LXPLUS = "higgs_dna/job_management/condor/executable_template_lxplus.sh"
-CONDOR_SUB_TEMPLATE_LXPLUS = "higgs_dna/job_management/condor/condor_submit_template_lxplus.txt"
-
-# HTCondor mappings (http://pages.cs.wisc.edu/~adesmet/status.html)
-CONDOR_STATUS_FLAGS = {
-    0 : "unexpanded", # appropriate behavior for this status not currently implemented
-    1 : "idle",
-    2 : "running",
-    3 : "removed",
-    4 : "completed",
-    5 : "held",
-    6 : "submission_error"
-}
+#https://indico.cern.ch/event/560226/contributions/2277448/attachments/1324704/1988050/wgm_vfp_change_ebutz.pdf
+#pre-VFP  runs: 273150-278800 lumi: 19480.4566773 /pb
+#post-VFP runs: 278801-284044 lumi: 16755.0362868 /pb
 
 LUMI = {
     "2016" : 35.9,
+    "2016UL_preVFP" : 19.48, # 2016 APV
+    "2016UL_postVFP" : 16.76, # 2016
     "2017" : 41.5,
     "2018" : 59.8
+}
+
+GOLDEN_JSON = {
+    "2016UL_preVFP" : "metadata/golden_json/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt",
+    "2016UL_postVFP" : "metadata/golden_json/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt",
+    "2017" : "metadata/golden_json/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt",
+    "2018" : "metadata/golden_json/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt"
+}
+
+# nanoAOD branches to always include
+BRANCHES = {
+    "data" : {
+        "2016" : [
+            "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90",
+        ],
+        "2016UL_postVFP" : [
+            "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90",
+        ],
+        "2016UL_preVFP" : [
+            "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90",
+        ],
+        "2017" : [
+            "HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90",
+        ],
+        "2018" : [
+            "HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90",
+        ],
+        "any" : ["event", "run", "luminosityBlock"]
+    },
+    "mc" : {
+        "2016APV" : [],
+        "2016" : [],
+        "2016UL_preVFP" : [],
+        "2016UL_postVFP" : [],
+        "2017" : [],
+        "2018" : [],
+        "any" : ["event", "run", "luminosityBlock"]
+    }
 }

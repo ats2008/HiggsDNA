@@ -7,7 +7,7 @@ The installation procedure consists in the following steps:
   
 **1. Clone this repository**  
 ```  
-git clone https://gitlab.cern.ch/HiggsDNA-project/HiggsDNA  
+git clone --recursive https://gitlab.cern.ch/HiggsDNA-project/HiggsDNA  
 cd HiggsDNA  
 ```  
 **2. Install dependencies**  
@@ -17,22 +17,37 @@ ge-environments.html) by running:
 ```  
 conda env create -f environment.yml  
 ```  
+the conda env can become pretty large (multiple GB), so you may want to specify an installation location before running the above step with
+```
+mkdir <some_path_where_you_have_more_disk_space>/.conda/pkgs
+chmod 755 -R <some_path_where_you_have_more_disk_space>/.conda/pkgs
+conda config --prepend pkg_dirs <some_path_where_you_have_more_disk_space>/.conda/pkgs
+```
+Then activate the environment with
+```
+conda activate higgs-dna
+```
+** lxplus-specific notes **
+If you are running on `lxplus` you may run into permission errors, which can be fixed with:
+```
+chmod 755 -R /afs/cern.ch/user/<your_username_first_initial>/<your_username>/.conda
+```
+You may also want to increase your disk quota at [this link](https://resources.web.cern.ch/resources/Manage/EOS/Default.aspx), otherwise you may run out of space while installing your `conda` environment.
+
 Please note that the field ```python>=3.6``` will create an environment with the most recent stable version of Python. Change it to suite your needs (but still matching the requirement of Python>=3.6).  
+
+One additional package, `correctionlib`, must be installed via `pip`, rather than `conda`. Run
+```
+setup.sh
+```
+to install this script.
   
 **3. Install ```higgs_dna```**  
   
-**Users** can install the package by simply running:  
-```  
-python setup.py install  
-```  
-(when a stable version will be available, it will be uploaded to the PyPI and it will be possible to install with just ```pip install higgs_dna``` without the need to clone the repository).  
-  
-  
-For **developers**, the suggested way to install is:  
+Install with:
 ```  
 pip install -e .  
 ```  
-this prevents the need to run the installation step every time a change is performed.
 
 If you notice issues with the ```conda pack``` command for creating the tarball, try updating and cleaning your environment with (after running ```conda activate higgs-dna```):
 ```

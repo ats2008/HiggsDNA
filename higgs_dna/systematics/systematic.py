@@ -1,12 +1,13 @@
 import sys
 import awkward
+import json
 
 import logging
 logger = logging.getLogger(__name__)
 
 from inspect import signature
 
-from higgs_dna.utils import awkward_utils
+from higgs_dna.utils import awkward_utils, misc_utils
 from higgs_dna.constants import CENTRAL_WEIGHT, NOMINAL_TAG
 
 class Systematic():
@@ -144,7 +145,7 @@ class Systematic():
                 if hasattr(self, arg):
                     kwargs[arg] = getattr(self, arg)
                 else:
-                    message = "[Systematic : get_function_kwargs] Systematic: %s, for function '%s' from module <%s>, we found an argument %s that is not present as an attribute of this class and we did not know how to otherwise set this argument. This may lead to unintended behavior or crashes!" % (self.name, self.function["name"], self.function["module"], arg)
+                    message = "[Systematic : get_function_kwargs] Systematic: %s, for function '%s' from module <%s>, we found an argument '%s' that is not present as an attribute of this class and we did not know how to otherwise set this argument. This may lead to unintended behavior or crashes!" % (self.name, self.function["name"], self.function["module"], arg)
                     logger.warning(message)
 
         logger.debug("[Systematic : get_function_kwargs] Systematic: %s, for function '%s' from module <%s>, we are passing arguments as:" % (self.name, self.function["name"], self.function["module"]))
@@ -185,7 +186,8 @@ class WeightSystematic(Systematic):
         self.requires_branches = requires_branches
 
         self.is_applied = {} # a weight will often be applied to multiple different sets of events (corresponding to different independent collections)
-    
+        self.is_applied_all = False # will be set to true if the weight is applied directly on the nominal events (i.e. before producing the independent collections) to avoid duplicate application on systematics with independent collections
+
     def produce(self, events, central_only = False):
         """
         Calculate the central/up/down variations for this WeightSystematic and add these as fields to the events array.
@@ -199,8 +201,6 @@ class WeightSystematic(Systematic):
         """
         if self.method == "from_branch":
             self.check_fields(events)
-            for variation, branch in self.branches.items():
-                awkward_utils.add_field(events, self.name + "_" + variation, events[branch])
 
         elif self.method == "from_function":
             self.branches = {}
@@ -326,7 +326,11 @@ class WeightSystematic(Systematic):
                 awkward.ones_like(weight)
             )
 
-            self.summary[syst_tag]["central"]["frac"] = float(awkward.sum(mask)) / float(len(weight))
+            if len(weight) > 0:
+                self.summary[syst_tag]["central"]["frac"] = float(awkward.sum(mask)) / float(len(weight))
+            else:
+                self.summary[syst_tag]["central"]["frac"] = 0.
+
             if self.summary[syst_tag]["central"]["frac"] < 1.:
                 logger.debug("[WeightSystematic : apply] WeightSystematic: %s, independent collection: %s, per-event weight is applied to %.2f percent of events." % (self.name, syst_tag, self.summary[syst_tag]["central"]["frac"] * 100.))
 
@@ -371,8 +375,10 @@ class ObjectWeightSystematic(WeightSystematic):
     :type input_collection: str
     :param target_collection: name of record that contains the objects for translating the per-object weights into per-event weights. May be passed as a string, e.g. "SelectedElectron" or as a tuple, in the case of nested records, e.g. ("Diphoton", "LeadPhoton")
     :type target_collection: str or tuple
+    :param normalization_factors: path to a json file with a set of overall normalization factors to correct the weight (e.g. the normalization factors required for the DeepJet btag reshape SF such that the SFs do not change the overall normalization)
+    :type normalization_factors: str
     """
-    def __init__(self, name, method, modify_central_weight, input_collection, branches = None, function = None, sample = None, target_collection = None):
+    def __init__(self, name, method, modify_central_weight, input_collection, branches = None, function = None, sample = None, target_collection = None, normalization_factors = None):
         super(ObjectWeightSystematic, self).__init__(name, method, modify_central_weight, branches = branches, function = function, sample = sample)
 
         self.input_collection = input_collection
@@ -380,6 +386,8 @@ class ObjectWeightSystematic(WeightSystematic):
             self.target_collection = self.input_collection
         else:
             self.target_collection = target_collection
+
+        self.normalization_factors = normalization_factors
 
         # If user specified an input collection, update the branches to be in tuple format so it can be accessed directly from events as events[full_branch]
         if self.method == "from_branch" and self.input_collection is not None:
@@ -416,14 +424,27 @@ class ObjectWeightSystematic(WeightSystematic):
             if self.input_collection == self.target_collection:
                 target_branch = branch
             elif isinstance(self.target_collection, tuple):
-                target_branch = self.target_collection + branch[1:]
+                if isinstance(branch, tuple):
+                    target_branch = self.target_collection + branch[1:]
+                else:
+                    target_branch = self.target_collection + (branch)
             else:
                 target_branch = (self.target_collection,) + branch[1:]
 
-            weights[variation] = awkward.prod(events[target_branch], axis = 1)
+            jagged = "var" in str(events[target_branch].type)
+            if jagged:
+                weights[variation] = awkward.prod(events[target_branch], axis = 1)
+            else:
+                weights[variation] = events[target_branch]
+
+            if self.normalization_factors is not None:
+                with open(misc_utils.expand_path(self.normalization_factors), "r") as f_in:
+                    nf = json.load(f_in)
+
+                weights[variation] = weights[variation] * nf[self.sample.name][variation]
 
             name = "weight_" + self.name + "_" + variation
-            awkward_utils.add_field(events, name, weights[variation])
+            awkward_utils.add_field(events, name, weights[variation], overwrite = True)
 
         return weights
 
@@ -443,6 +464,8 @@ class EventWeightSystematic(WeightSystematic):
             if central_only and not variation == "central":
                 continue
             weights[variation] = events[branch]
+            name = "weight_" + self.name + "_" + variation
+            awkward_utils.add_field(events, name, weights[variation], overwrite = True)
 
         return weights
 
@@ -533,9 +556,9 @@ class SystematicWithIndependentCollection(Systematic):
         """
         independent_collections = {}
         for variation, branch in self.branches.items():
-            if variation == "nominal" and not self.modify_nominal:
+            if variation == NOMINAL_TAG and not self.modify_nominal:
                 continue
-            if not variation == "nominal" and self.nominal_only:
+            if not variation == NOMINAL_TAG and self.nominal_only:
                 continue
             name = self.name + "_" + variation
             if self.additive:
@@ -568,9 +591,9 @@ class SystematicWithIndependentCollection(Systematic):
         )(**kwargs)
 
         for variation, branch in variations.items():
-            if variation == "nominal" and not self.modify_nominal:
+            if variation == NOMINAL_TAG and not self.modify_nominal:
                 continue
-            if not variation == "nominal" and self.nominal_only:
+            if not variation == NOMINAL_TAG and self.nominal_only:
                 continue 
             name = self.name + "_" + variation
             independent_collections[variation] = awkward.with_field(

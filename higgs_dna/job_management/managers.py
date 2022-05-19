@@ -532,6 +532,18 @@ class CondorManager(JobsManager):
                     logger.debug("\t '%s' -> '%s'" % (self.batch_conda_tarfile, self.xrd_conda_tarfile))
                     logger.debug("\t '%s' -> '%s'" % (self.batch_analysis_tarfile, self.xrd_analysis_tarfile))
 
+        if self.host in ["UCSD"]:
+            self.conda_tarfile_batch = self.batch_output_dir + "/" + "higgs-dna.tar.gz"
+            self.analysis_tarfile_batch = self.batch_output_dir + "/" + "higgs_dna.tar.gz"
+
+            logger.debug("[CondorManager : prepare_inputs] Transferring tarfiles to hadoop directory '%s' so they may be copied with xrd to reduce I/O load on local cluster." % self.batch_output_dir)
+            os.system("cp %s %s" % (self.conda_tarfile, self.conda_tarfile_batch))
+            os.system("cp %s %s" % (self.analysis_tarfile, self.analysis_tarfile_batch))
+
+            logger.debug("[CondorManager : prepare_inputs] Setting replication factor to 30 to increase transfer speed.")
+            os.system("hadoop fs -setrep -R 30 %s" % (self.conda_tarfile_batch.replace("/hadoop","")))
+            os.system("hadoop fs -setrep -R 30 %s" % (self.analysis_tarfile_batch.replace("/hadoop","")))
+ 
         # Check grid proxy
         self.proxy = check_proxy()
         if self.proxy is None:

@@ -14,7 +14,7 @@ python-build:
     script:
     - conda env create -f environment.yml
     - source activate higgs-dna
-    - pip install .
+    - pip install -e .
 
 # Generate docs 
 docs-gen:

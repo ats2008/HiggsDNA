@@ -1,6 +1,6 @@
 import unittest
 
-from higgs_dna.utils import setup_logger
+from higgs_dna.utils.logger_utils import setup_logger
 
 
 class TestUtils(unittest.TestCase):

@@ -1,0 +1,192 @@
+{
+    "Data": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/Data/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/Data/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/Data/*2017.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/Data/*2018.root"
+        },
+        "fpo": 10
+    },
+    "DiPhoton": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/DiPhoton/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/DiPhoton/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/DiPhoton/*2017.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/DiPhoton/*2018.root"
+        },
+        "fpo": 1,
+        "xs": 84.4
+    },
+    "GJets_HT-100To200": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-100To200/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-100To200/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-100To200/*2017.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-100To200/*2018.root"
+        },
+        "fpo": 10,
+        "xs": 8631.0
+    },
+    "GJets_HT-200To400": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-200To400/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-200To400/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-200To400/*2017*.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-200To400/*2018*.root"
+        },
+        "fpo": 10,
+        "xs": 2280.0
+    },
+    "GJets_HT-400To600": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-400To600/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-400To600/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-400To600/*2017.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-400To600/*2018.root"
+        },
+        "fpo": 10,
+        "xs": 273.0
+    },
+    "GJets_HT-40To100": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT40To100/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT40To100/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT40To100/*2017.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT40To100/*2018.root"
+        },
+        "fpo": 10,
+        "xs": 23100.0
+    },
+    "GJets_HT-600ToInf": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-600ToInf/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-600ToInf/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-600ToInf/*2017.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/GJets_HT-600ToInf/*2018.root"
+        },
+        "fpo": 10,
+        "xs": 1
+    },
+    "DY" : {
+        "xs" : 5765.4,
+        "files" : {
+            "2016UL_postVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL16MiniAODv2-106X_mcRun2_asymptotic_v17-v1_MINIAODSIM_final/",
+            "2016UL_preVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL16MiniAODAPVv2-106X_mcRun2_asymptotic_preVFP_v11-v1_MINIAODSIM_final/",
+            "2017" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2_MINIAODSIM_final/",
+            "2018" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2_MINIAODSIM_final/"
+        },
+        "fpo" : 1
+    }, 
+    "TTGG": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/TTGG/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/TTGG/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/TTGG/*2017.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/TTGG/*2018.root"
+        },
+        "fpo": 1,
+        "xs": {
+            "2016UL_postVFP": 0.01731,
+            "2016UL_preVFP": 0.01731,
+            "2017": 0.01687,
+            "2018": 0.01687
+        }
+    },
+    "TTGamma": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/TTGamma/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/TTGamma/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/TTGamma/*2017.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/TTGamma/*2018.root"
+        },
+        "fpo": 3,
+        "xs": {
+            "2016UL_postVFP": 3.819,
+            "2016UL_preVFP": 3.819,
+            "2017": 4.078,
+            "2018": 4.078
+        }
+    },
+    "TTJets": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/TTbar/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/TTbar/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/TTbar/*2017*.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/TTbar/*2018*.root"
+        },
+        "fpo": 10,
+        "xs": 831.76
+    },
+    "VBFH_M125": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/VBFH/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/VBFH/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/VBFH/*2017.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/VBFH/*2018.root"
+        },
+        "fpo": 1,
+        "xs": 0.00858514
+    },
+    "VH_M125": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/VH/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/VH/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/VH/*2017*.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/VH/*2018*.root"
+        },
+        "fpo": 1,
+        "xs": 0.00512
+    },
+    "WGamma": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/WGamma/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/WGamma/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/WGamma/*2017.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/WGamma/*2018.root"
+        },
+        "fpo": 5,
+        "xs": {
+            "2016UL_postVFP": 191.4,
+            "2016UL_preVFP": 191.4,
+            "2017": 191.4,
+            "2018": 191.4
+        }
+    },
+    "ZGamma": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/ZGamma/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/ZGamma/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/ZGamma/*2017.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/ZGamma/*2018.root"
+        },
+        "fpo": 5,
+        "xs": {
+            "2016UL_postVFP": 55.6,
+            "2016UL_preVFP": 55.6,
+            "2017": 55.6,
+            "2018": 55.6
+        }
+    },
+    "ggH_M125": {
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/ggH/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/ggH/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/ggH/*2017.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/ggH/*2018.root"
+        },
+        "fpo": 1,
+        "xs": 0.1118429
+    },
+    "ttH_M125": {
+        "bf": 0.00227,
+        "files": {
+            "2016UL_postVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/ttH/*2016.root",
+            "2016UL_preVFP": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/ttH/*2016_APV.root",
+            "2017": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/ttH/*2017.root",
+            "2018": "/ceph/cms/store/user/fsetti/c++_looper_ul_output/02May2022/ttH/*2018.root"
+        },
+        "fpo": 1,
+        "xs": 0.5071
+    }
+}

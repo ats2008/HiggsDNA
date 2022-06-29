@@ -22,6 +22,7 @@ DEFAULT_OPTIONS = {
             [1.566, 2.5]
         ],
         "e_veto" : 0.5,
+        "pixel_veto" : 1.0,
         "e_veto_invert" : False,
         "hoe" : 0.08,
         "r9" : 0.8,
@@ -329,6 +330,9 @@ class DiphotonTagger(Tagger):
         else:
             e_veto_cut = photons.electronVeto < options["e_veto"]
 
+        # psv veto
+        psv_cut = photons.pixelSeed <= options["pixel_veto"]
+
         use_central_nano = options["use_central_nano"] # indicates whether we are using central nanoAOD (with some branches that are necessary for full diphoton preselection missing) or custom nanoAOD (with these branches added)
 
         # r9/isolation cut
@@ -401,11 +405,11 @@ class DiphotonTagger(Tagger):
         hlt_cut = hlt_cut | photons_ee_high_r9
         hlt_cut = hlt_cut | (photons_ee_low_r9 & ee_low_r9_track_pt_cut & ee_low_r9_sigma_ieie_cut & ee_low_r9_pho_iso_cut)
 
-        all_cuts = pt_cut & eta_cut & e_veto_cut & r9_iso_cut & hoe_cut & hlt_cut
+        all_cuts = pt_cut & eta_cut & e_veto_cut & r9_iso_cut & hoe_cut & hlt_cut & psv_cut
 
         self.register_cuts(
-                names = ["pt", "eta", "e_veto", "r9", "hoe", "hlt", "all"],
-                results = [pt_cut, eta_cut, e_veto_cut, r9_iso_cut, hoe_cut, hlt_cut, all_cuts],
+                names = ["pt", "eta", "e_veto", "r9", "hoe", "hlt", "psv", "all"],
+                results = [pt_cut, eta_cut, e_veto_cut, r9_iso_cut, hoe_cut, hlt_cut, psv_cut, all_cuts],
                 cut_type = "photon"
         )
 

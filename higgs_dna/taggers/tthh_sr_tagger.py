@@ -28,7 +28,7 @@ DEFAULT_OPTIONS = {
         "lepton_1_pt", "lepton_1_eta", "lepton_1_mass", "lepton_1_charge", "lepton_1_id",
         "lepton_2_pt", "lepton_2_eta", "lepton_2_mass", "lepton_2_charge", "lepton_2_id" 
     ],
-    "bdt_cuts" : [0.9937, 0.975174]
+    "bdt_cuts" : [0.9937, 0.975174, 0]
 }
 
 class TTHHSRTagger(Tagger):

@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from higgs_dna.taggers.tagger import Tagger, NOMINAL_TAG
-from higgs_dna.selections import object_selections, lepton_selections, jet_selections, tau_selections, physics_utils
+from higgs_dna.selections import object_selections, lepton_selections, jet_selections, tau_selections, physics_utils, gen_selections
 from higgs_dna.utils import awkward_utils, misc_utils
 
 DUMMY_VALUE = -999.
@@ -295,6 +295,19 @@ class TTHHPreselTagger(Tagger):
         if awkward.any(awkward.num(ditau_pairs) >= 2):
             ditau_pairs = ditau_pairs[awkward.argsort(abs(ditau_pairs.ditau.mass - 125), axis = 1)] # if so, take the one with m_vis closest to mH
         ditau_pairs = awkward.firsts(ditau_pairs)
+
+        # Gen info
+        if not self.is_data:
+            gen_hbb = gen_selections.select_x_to_yz(events.GenPart, 25, 5, 5)
+            gen_hww = gen_selections.select_x_to_yz(events.GenPart, 25, 24, 24)
+            gen_htt = gen_selections.select_x_to_yz(events.GenPart, 25, 15, 15)
+            gen_hxx = awkward.concatenate([gen_hbb, gen_hww, gen_htt], axis=1)
+            gen_top = gen_selections.select_x_to_yz(events.GenPart, 6, 5, 24)
+            gen_w = gen_selections.select_x_to_yz(events.GenPart, 24, None, None)
+
+            events["GenHiggs"] = gen_hxx   
+            events["GenTop"] = gen_top
+            events["GenW"] = gen_w
 
         # Preselection cuts
         pho_id = (events.LeadPhoton.mvaID > self.options["photon_mvaID"]) & (events.SubleadPhoton.mvaID > self.options["photon_mvaID"])

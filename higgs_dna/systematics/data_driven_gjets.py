@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 def data_driven_gjets(events, central_only, year):
     required_fields = [
-        ("Photon", "mvaId")
+        ("LeadPhoton", "mvaID"), ("SubleadPhoton", "mvaID")
     ]
 
     missing_fields = awkward_utils.missing_fields(events, required_fields)

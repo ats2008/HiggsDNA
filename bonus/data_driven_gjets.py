@@ -195,13 +195,14 @@ def main(args):
     gjets_target_norm = awkward.sum(presel_events_data.weight_central) - awkward.sum(nrb_events.weight_central)
     gjets_scaling = gjets_target_norm / awkward.sum(sdbd_events.weight_central)
     sdbd_events["weight_central"] = sdbd_events.weight_central * gjets_scaling
+    sdbd_events["process_id"] = awkward.ones_like(sdbd_events.process_id) * 99
 
     presel_events = awkward.concatenate([presel_events, sdbd_events], axis=0)
     
     print("Coeffs", coeffs)
     print("GJets scaling", gjets_scaling)
 
-
+    awkward.to_parquet(presel_events, args.input_dir + "/merged_nominal_add_ddgjets.parquet")
 
 if __name__ == "__main__":
     args = parse_arguments()

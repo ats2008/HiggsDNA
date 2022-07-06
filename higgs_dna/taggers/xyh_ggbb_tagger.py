@@ -149,8 +149,7 @@ class XYHggbbTagger(Tagger):
         n_jet_cut = awkward.num(jets) >= 2
 
         medium_bjets = bjets[bjets.btagDeepFlavB > self.options["jets"]["bjet_thresh"][self.year]]
-        b_jet_cut = awkward.num(medium_bjets) >= 1
-
+        b_jet_cut = awkward.num(medium_bjets) >= 0 # no cut for now
 
         # bb candidates
         jets = awkward.Array(jets, with_name = "Momentum4D")
@@ -189,7 +188,7 @@ class XYHggbbTagger(Tagger):
         awkward_utils.add_field(events, "xcand_phi", awkward.fill_none(x_cands.phi, DUMMY_VALUE))
         awkward_utils.add_field(events, "xcand_mass", awkward.fill_none(x_cands.mass, DUMMY_VALUE))
 
-        dijet_mass_cut = (events.dijet_mass >= 85.) & (events.dijet_mass <= 165.)
+        dijet_mass_cut = events.dijet_mass >= 50. 
 
         presel_cut = pho_id & lepton_veto & n_jet_cut & b_jet_cut & dijet_mass_cut
         self.register_cuts(

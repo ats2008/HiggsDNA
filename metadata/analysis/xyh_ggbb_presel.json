@@ -64,7 +64,7 @@
                             "sublead_pt" : 18.0,
                             "lead_pt_mgg" : 0.0,
                             "sublead_pt_mgg" : 0.0,
-                            "mass" : [55.0, 1000.0],
+                            "mass" : [55.0, 999999.0],
                             "select_highest_pt_sum" : true
                         },
                         "trigger" : {

@@ -124,8 +124,10 @@ def main(args):
             axis=1
     )
 
-    events["Max_mvaID"] = awkward.max(photons, axis=1)
-    events["Min_mvaID"] = awkward.min(photons, axis=1)
+    events["Max_mvaID"] = awkward.ravel(awkward.max(photons, axis=1))
+    events["Min_mvaID"] = awkward.ravel(awkward.min(photons, axis=1))
+
+    print(events["Max_mvaID"].type)
 
     with open(args.input_dir + "/summary.json", "r") as f_in:
         process_map = json.load(f_in)["sample_id_map"]
@@ -198,11 +200,12 @@ def main(args):
     sdbd_events["process_id"] = awkward.ones_like(sdbd_events.process_id) * 99
 
     presel_events = awkward.concatenate([presel_events, sdbd_events], axis=0)
-    
+    presel_events = presel_events[presel_events.Min_mvaID >= -0.7]
+
     print("Coeffs", coeffs)
     print("GJets scaling", gjets_scaling)
 
-    awkward.to_parquet(presel_events, args.input_dir + "/merged_nominal_add_ddgjets.parquet")
+    awkward.to_parquet(presel_events, args.output_dir + "/merged_nominal.parquet")
 
 if __name__ == "__main__":
     args = parse_arguments()

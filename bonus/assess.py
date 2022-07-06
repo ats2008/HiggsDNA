@@ -274,6 +274,9 @@ def make_tables(events, process_map, signals, bkgs = None):
     for proc, result in yields.items():
         if proc == "Data" or proc in signals or proc == "total_bkg":
             continue
+        if bkgs is not None:
+            if proc not in bkgs:
+                continue
         yields["total_bkg"]["n"] += result["n"]
         for unc in ["stat_unc", "syst_unc_up", "syst_unc_down"]:
             yields["total_bkg"][unc] += result[unc] ** 2
@@ -381,7 +384,7 @@ def make_data_mc_plot(data, bkg, sig, savename, **kwargs):
     plt.grid()
     h_data.plot(ax=ax1, color = "black", errors = True)
     plt.sca(ax1)
-    hep.cms.label(" Preliminary",loc=0,data=True,lumi=137,fontsize=18)
+    hep.cms.label(" Preliminary",loc=0,data=True,lumi=138,fontsize=18)
 
     stack = sorted(h_bkg, key = lambda x : x.integral)
     plot_stack(stack, ax=ax1, histtype="stepfilled")
@@ -633,7 +636,7 @@ def plot_shapes(arrays, weights, names, savename, **kwargs):
         h.plot(ax=ax1, color="C%d" % idx, errors = False, linewidth=3, label = "%s [N : %.3f, Mean : %.3f, Std : %.3f]" % (names[idx], norm[idx], mean[idx], std[idx]))
 
     plt.sca(ax1)
-    hep.cms.label(" Preliminary",loc=0,data=True,lumi=137,fontsize=18)        
+    hep.cms.label(" Preliminary",loc=0,data=True,lumi=138,fontsize=18)        
     
     if len(hists) >= 2:
         for i in range(1, len(hists)):

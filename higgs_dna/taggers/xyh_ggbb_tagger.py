@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from higgs_dna.taggers.tagger import Tagger, NOMINAL_TAG
-from higgs_dna.selections import object_selections, lepton_selections, jet_selections, tau_selections, physics_utils
+from higgs_dna.selections import object_selections, lepton_selections, jet_selections, tau_selections, physics_utils, gen_selections
 from higgs_dna.utils import awkward_utils, misc_utils
 
 DUMMY_VALUE = -9.
@@ -151,8 +151,32 @@ class XYHggbbTagger(Tagger):
         medium_bjets = bjets[bjets.btagDeepFlavB > self.options["jets"]["bjet_thresh"][self.year]]
         b_jet_cut = awkward.num(medium_bjets) >= 0 # no cut for now
 
+        # Gen info
+        if not self.is_data:
+            gen_xyh = gen_selections.select_x_to_yz(events.GenPart, 45, 25, 35)
+            gen_ygg = gen_selections.select_x_to_yz(events.GenPart, 35, 22, 22)
+            gen_hbb = gen_selections.select_x_to_yz(events.GenPart, 25, 5, 5)
+
+            awkward_utils.add_object_fields(events, "GenX", gen_xyh.GenParent, n_objects=1)
+            awkward_utils.add_object_fields(events, "GenY", gen_ygg.GenParent, n_objects=1)
+            awkward_utils.add_object_fields(events, "GenHiggs", gen_hbb.GenParent, n_objects=1)
+
+            awkward_utils.add_object_fields(events, "GenBFromHiggs", awkward.concatenate([gen_hbb.LeadGenChild,gen_hbb.SubleadGenChild], axis=1), n_objects=2)
+            awkward_utils.add_object_fields(events, "GenGFromHiggs", awkward.concatenate([gen_ygg.LeadGenChild,gen_ygg.SubleadGenChild], axis=1), n_objects=2)
+
+            jets["gen_match"] = object_selections.delta_R(
+                jets,
+                awkward.concatenate([gen_hbb.LeadGenChild,gen_hbb.SubleadGenChild], axis=1),
+                dr = 0.4,
+                mode = "max"
+            )
+
+            events["n_gen_matched_jets"] = awkward.num(jets[jets.gen_match == True])
+
         # bb candidates
         jets = awkward.Array(jets, with_name = "Momentum4D")
+        events["n_jets"] = awkward.num(jets)
+        
         dijet_pairs = awkward.combinations(jets, 2, fields = ["LeadJet", "SubleadJet"])
 
         if awkward.any(awkward.num(dijet_pairs) >= 2):
@@ -162,7 +186,9 @@ class XYHggbbTagger(Tagger):
         dijet_pairs[("dijet", "dR")] = dijet_pairs.LeadJet.deltaR(dijet_pairs.SubleadJet)
         dijet_pairs = awkward.firsts(dijet_pairs)
 
-        for field in ["pt", "eta", "phi", "btagDeepFlavB", "mass"]:
+        for field in ["pt", "eta", "phi", "btagDeepFlavB", "mass", "gen_match"]:
+            if self.is_data and field == "gen_match":
+                continue
             awkward_utils.add_field(
                     events,
                     "dijet_lead_%s" % field,
@@ -173,7 +199,10 @@ class XYHggbbTagger(Tagger):
                     "dijet_sublead_%s" % field,
                     awkward.fill_none(dijet_pairs.SubleadJet[field], DUMMY_VALUE)
             )
-        
+
+        if not self.is_data:
+            events["n_gen_matched_in_dijet"] = awkward.where(dijet_pairs.LeadJet.gen_match == True, awkward.ones_like(events.run), awkward.zeros_like(events.run)) + awkward.where(dijet_pairs.SubleadJet.gen_match == True, awkward.ones_like(events.run), awkward.zeros_like(events.run)) 
+
         awkward_utils.add_field(events, "dijet_pt", awkward.fill_none(dijet_pairs.dijet.pt, DUMMY_VALUE))
         awkward_utils.add_field(events, "dijet_eta", awkward.fill_none(dijet_pairs.dijet.eta, DUMMY_VALUE))
         awkward_utils.add_field(events, "dijet_phi", awkward.fill_none(dijet_pairs.dijet.phi, DUMMY_VALUE))
@@ -192,7 +221,7 @@ class XYHggbbTagger(Tagger):
 
         presel_cut = pho_id & lepton_veto & n_jet_cut & b_jet_cut & dijet_mass_cut
         self.register_cuts(
-            names = ["photon id", "lepton veto", "n_jets >= 2", "1 medium b", "m_jj in [85,165]", "all cuts"],
+            names = ["photon id", "lepton veto", "n_jets >= 2", "1 medium b", "m_jj > 50 GeV", "all cuts"],
             results = [pho_id, lepton_veto, n_jet_cut, b_jet_cut, dijet_mass_cut, presel_cut]
         )
 

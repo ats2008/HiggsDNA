@@ -188,5 +188,104 @@
         },
         "fpo": 1,
         "xs": 0.5071
-    }
+    },
+    "NMSSM_XYH_Y_gg_H_bb_MX_600_MY_90" : {
+        "bf" : 1.0,
+        "xs" : 0.001,
+        "files" : {
+            "2016UL_preVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_600_MY_90_2016_APV_v0_070722/*.root",
+            "2016UL_postVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_600_MY_90_2016_v0_070722/*.root",
+            "2017" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_600_MY_90_2017_v0_070722/*.root",
+            "2018" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_600_MY_90_2018_v0_070722/*.root"
+        },
+        "fpo" : 10
+    },
+    "NMSSM_XYH_Y_gg_H_bb_MX_600_MY_95" : {
+        "bf" : 1.0,
+        "xs" : 0.001,
+        "files" : {
+            "2016UL_preVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_600_MY_95_2016_APV_v0_070722/*.root",
+            "2016UL_postVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_600_MY_95_2016_v0_070722/*.root",
+            "2017" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_600_MY_95_2017_v0_070722/*.root",
+            "2018" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_600_MY_95_2018_v0_070722/*.root"
+        },
+        "fpo" : 10
+    },
+    "NMSSM_XYH_Y_gg_H_bb_MX_600_MY_100" : {
+        "bf" : 1.0,
+        "xs" : 0.001,
+        "files" : {
+            "2016UL_preVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_600_MY_100_2016_APV_v0_070722/*.root",
+            "2016UL_postVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_600_MY_100_2016_v0_070722/*.root",
+            "2017" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_600_MY_100_2017_v0_070722/*.root",
+            "2018" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_600_MY_100_2018_v0_070722/*.root"
+        },
+        "fpo" : 10
+    },
+    "NMSSM_XYH_Y_gg_H_bb_MX_650_MY_90" : {
+        "bf" : 1.0,
+        "xs" : 0.001,
+        "files" : {
+            "2016UL_preVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_650_MY_90_2016_APV_v0_070722/*.root",
+            "2016UL_postVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_650_MY_90_2016_v0_070722/*.root",
+            "2017" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_650_MY_90_2017_v0_070722/*.root",
+            "2018" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_650_MY_90_2018_v0_070722/*.root"
+        },
+        "fpo" : 10
+    },
+    "NMSSM_XYH_Y_gg_H_bb_MX_650_MY_95" : {
+        "bf" : 1.0,
+        "xs" : 0.001,
+        "files" : {
+            "2016UL_preVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_650_MY_95_2016_APV_v0_070722/*.root",
+            "2016UL_postVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_650_MY_95_2016_v0_070722/*.root",
+            "2017" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_650_MY_95_2017_v0_070722/*.root",
+            "2018" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_650_MY_95_2018_v0_070722/*.root"
+        },
+        "fpo" : 10
+    },
+    "NMSSM_XYH_Y_gg_H_bb_MX_650_MY_100" : {
+        "bf" : 1.0,
+        "xs" : 0.001,
+        "files" : {
+            "2016UL_preVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_650_MY_100_2016_APV_v0_070722/*.root",
+            "2016UL_postVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_650_MY_100_2016_v0_070722/*.root",
+            "2017" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_650_MY_100_2017_v0_070722/*.root",
+            "2018" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_650_MY_100_2018_v0_070722/*.root"
+        },
+        "fpo" : 10
+    },
+    "NMSSM_XYH_Y_gg_H_bb_MX_700_MY_90" : {
+        "bf" : 1.0,
+        "xs" : 0.001,
+        "files" : {
+            "2016UL_preVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_700_MY_90_2016_APV_v0_070722/*.root",
+            "2016UL_postVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_700_MY_90_2016_v0_070722/*.root",
+            "2017" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_700_MY_90_2017_v0_070722/*.root",
+            "2018" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_700_MY_90_2018_v0_070722/*.root"
+        },
+        "fpo" : 10
+    },
+    "NMSSM_XYH_Y_gg_H_bb_MX_700_MY_95" : {
+        "bf" : 1.0,
+        "xs" : 0.001,
+        "files" : {
+            "2016UL_preVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_700_MY_95_2016_APV_v0_070722/*.root",
+            "2016UL_postVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_700_MY_95_2016_v0_070722/*.root",
+            "2017" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_700_MY_95_2017_v0_070722/*.root",
+            "2018" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_700_MY_95_2018_v0_070722/*.root"
+        },
+        "fpo" : 10
+    },
+    "NMSSM_XYH_Y_gg_H_bb_MX_700_MY_100" : {
+        "bf" : 1.0,
+        "xs" : 0.001,
+        "files" : {
+            "2016UL_preVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_700_MY_100_2016_APV_v0_070722/*.root",
+            "2016UL_postVFP" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_700_MY_100_2016_v0_070722/*.root",
+            "2017" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_700_MY_100_2017_v0_070722/*.root",
+            "2018" : "/ceph/cms/store/user/fsetti/Summer20UL_nanoAODv9/NMSSM_XYH_Y_gg_H_bb_MX_700_MY_100_2018_v0_070722/*.root"
+        },
+        "fpo" : 10
+    } 
 }

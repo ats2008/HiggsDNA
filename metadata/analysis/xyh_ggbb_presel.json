@@ -8,10 +8,17 @@
         ["Diphoton", "mass"], ["Diphoton", "pt"], ["Diphoton", "eta"], ["Diphoton", "phi"], ["Diphoton", "helicity"], ["Diphoton", "pt_mgg"], ["Diphoton", "max_mvaID"], ["Diphoton", "min_mvaID"], ["Diphoton", "dPhi"],
         ["LeadPhoton", "pt"], ["LeadPhoton", "eta"], ["LeadPhoton", "phi"], ["LeadPhoton", "mass"], ["LeadPhoton", "mvaID"], ["LeadPhoton", "genPartFlav"], ["LeadPhoton", "pixelSeed"],
         ["SubleadPhoton", "pt"], ["SubleadPhoton", "eta"], ["SubleadPhoton", "phi"], ["SubleadPhoton", "mass"], ["SubleadPhoton", "mvaID"], ["SubleadPhoton", "genPartFlav"], ["SubleadPhoton", "pixelSeed"],
-        "dijet_lead_pt", "dijet_lead_eta", "dijet_lead_phi", "dijet_lead_mass", "dijet_lead_btagDeepFlavB",
-        "dijet_sublead_pt", "dijet_sublead_eta", "dijet_sublead_phi", "dijet_sublead_mass", "dijet_sublead_btagDeepFlavB",
+        "n_jets",
+        "n_gen_matched_jets", "n_gen_matched_in_dijet",
+        "dijet_lead_pt", "dijet_lead_eta", "dijet_lead_phi", "dijet_lead_mass", "dijet_lead_btagDeepFlavB", "dijet_lead_gen_match",
+        "dijet_sublead_pt", "dijet_sublead_eta", "dijet_sublead_phi", "dijet_sublead_mass", "dijet_sublead_btagDeepFlavB", "dijet_sublead_gen_match",
         "dijet_pt", "dijet_eta", "dijet_phi", "dijet_mass", "dijet_dR",
         "xcand_pt", "xcand_eta", "xcand_phi", "xcand_mass",
+        "GenHiggs_pt", "GenHiggs_eta", "GenHiggs_phi", "GenHiggs_mass", "GenHiggs_dR",
+        "GenY_pt", "GenY_eta", "GenY_phi", "GenY_mass", "GenY_dR",
+        "GenX_pt", "GenX_eta", "GenX_phi", "GenX_mass", "GenX_dR",
+        "GenBFromHiggs_1_pt", "GenBFromHiggs_1_eta", "GenBFromHiggs_1_phi", "GenBFromHiggs_1_mass",
+        "GenBFromHiggs_2_pt", "GenBFromHiggs_2_eta", "GenBFromHiggs_2_phi", "GenBFromHiggs_2_mass",
         "weight_central",
         "event"
     ],
@@ -123,6 +130,7 @@
             "Electron_pt", "Electron_eta", "Electron_phi", "Electron_mass", "Electron_charge", "Electron_mvaFall17V2Iso_WP90", "Electron_mvaFall17V2noIso_WP90", "Electron_pfRelIso03_all", "Electron_dxy", "Electron_dz", "Electron_mvaFall17V2Iso_WP80",
             "Jet_pt", "Jet_eta", "Jet_phi", "Jet_mass", "Jet_btagDeepFlavB", "Jet_jetId", "Jet_hadronFlavour",
             "weight", "genWeight", "run", "event", "fixedGridRhoFastjetAll",
+            "GenPart_pt", "GenPart_eta", "GenPart_phi", "GenPart_mass", "GenPart_pdgId", "GenPart_genPartIdxMother",
             "MET_pt", "MET_phi" 
     ],
     "branch_map" : {
@@ -132,7 +140,7 @@
     },
     "samples" : {
         "catalog" : "metadata/samples/xyh_ggbb.json",
-        "sample_list" : ["Data","ttH_M125","ggH_M125","VBFH_M125","VH_M125","GJets_HT-40To100","GJets_HT-100To200","GJets_HT-200To400","GJets_HT-400To600","GJets_HT-600ToInf","TTJets","TTGamma","TTGG","WGamma","ZGamma","DiPhoton","DY"],
+        "sample_list" : ["Data","ttH_M125","ggH_M125","VBFH_M125","VH_M125","GJets_HT-40To100","GJets_HT-100To200","GJets_HT-200To400","GJets_HT-400To600","GJets_HT-600ToInf","TTJets","TTGamma","TTGG","WGamma","ZGamma","DiPhoton","DY", "*NMSSM*"],
         "years" : ["2016UL_preVFP","2016UL_postVFP","2017","2018"] 
     }
 }

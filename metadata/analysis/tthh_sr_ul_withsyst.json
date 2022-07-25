@@ -77,6 +77,18 @@
                 }
             },
             {
+                "module_name" : "higgs_dna.taggers.data_driven_gjets_tagger",
+                "tagger" : "DataDrivenGJetsTagger",
+                "kwargs" : {
+                    "name" : "DataDrivenGJetsTagger",
+                    "options" : {
+                        "sideband_cut" : -0.7,
+                        "pdf_coeffs" : [-0.47816971, 0.65614853, 0.29692862, -0.67958274, 0.0538941 , 0.24347086, -0.09726381, 0.00811039, -0.004895, 0.00723247],
+                        "norm_factor" : 0.9591855452696866 
+                    }
+                }
+            },
+            {
                 "module_name" : "higgs_dna.taggers.tthh_presel_tagger",
                 "tagger" : "TTHHPreselTagger",
                 "kwargs" : {

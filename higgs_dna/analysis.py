@@ -21,7 +21,7 @@ from higgs_dna.systematics.systematics_producer import SystematicsProducer
 from higgs_dna.taggers.tag_sequence import TagSequence
 from higgs_dna.taggers.golden_json_tagger import GoldenJsonTagger
 from higgs_dna.utils.misc_utils import load_config, update_dict, is_json_serializable
-from higgs_dna.constants import NOMINAL_TAG, CENTRAL_WEIGHT, BRANCHES
+from higgs_dna.constants import NOMINAL_TAG, CENTRAL_WEIGHT, BRANCHES, DATA_DRIVEN_GJETS_PROCESS_ID
 from higgs_dna.utils.metis_utils import do_cmd
 
 
@@ -493,6 +493,8 @@ class AnalysisManager():
             "config" : self.config
         }
 
+        self.summary["sample_id_map"]["DataDrivenGJets"] = DATA_DRIVEN_GJETS_PROCESS_ID
+
         for k,v in vars(self).items():
             if k == "summary":
                 continue
@@ -591,7 +593,7 @@ class AnalysisManager():
             save_map[save_name] = events[branch]
 
         for field in events.fields:
-            if "weight_" in field and not field in save_map.keys():
+            if ("weight_" in field or field == "process_id") and not field in save_map.keys():
                 save_map[field] = events[field]
 
         events = awkward.zip(save_map, depth_limit=1)

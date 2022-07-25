@@ -1,4 +1,5 @@
 import awkward
+import numpy
 
 from higgs_dna.samples.file import File
 from higgs_dna.utils import awkward_utils
@@ -56,6 +57,13 @@ class Sample():
                     events = events,
                     name = CENTRAL_WEIGHT + "_initial",
                     data = events[CENTRAL_WEIGHT], # central value of weight that will stay unchanged after applying corrections
+            )
+
+        if self.is_data: # if applying data-driven gjets procedure, the data-driven gjets tagger will need the process_id field in order to mark sideband events differently
+            awkward_utils.add_field(
+                    events = events,
+                    name = "process_id",
+                    data = numpy.ones(len(events)) * self.process_id
             )
 
         self.is_prepped = True

@@ -158,9 +158,20 @@ class DiphotonTagger(Tagger):
         diphotons = awkward.combinations(photons, 2, fields=["LeadPhoton", "SubleadPhoton"])
         diphotons["Diphoton"] = diphotons.LeadPhoton + diphotons.SubleadPhoton
 
-        # Add sumPt and dR for convenience
+        # Add sumPt, dR and min/max mvaID for convenience
         diphotons[("Diphoton", "sumPt")] = diphotons.LeadPhoton.pt + diphotons.SubleadPhoton.pt
         diphotons[("Diphoton", "dR")] = diphotons.LeadPhoton.deltaR(diphotons.SubleadPhoton)        
+        diphotons[("Diphoton", "max_mvaID")] = awkward.where(
+                diphotons.LeadPhoton.mvaID > diphotons.SubleadPhoton.mvaID,
+                diphotons.LeadPhoton.mvaID,
+                diphotons.SubleadPhoton.mvaID
+        )
+        diphotons[("Diphoton", "min_mvaID")] = awkward.where(
+                diphotons.LeadPhoton.mvaID > diphotons.SubleadPhoton.mvaID,
+                diphotons.SubleadPhoton.mvaID,
+                diphotons.LeadPhoton.mvaID
+        )
+        
 
         # Add lead/sublead photons to additionally be accessible together as diphotons.Diphoton.Photon
         # This is in principle a bit redundant, but makes many systematics and selections much more convenient to implement.

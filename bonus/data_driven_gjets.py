@@ -202,7 +202,9 @@ def main(args):
     presel_events = awkward.concatenate([presel_events, sdbd_events], axis=0)
     presel_events = presel_events[presel_events.Min_mvaID >= -0.7]
 
-    print("Coeffs", coeffs)
+    print("Coeffs")
+    for x in coeffs:
+        print("%.6f," % x)
     print("GJets scaling", gjets_scaling)
 
     awkward.to_parquet(presel_events, args.output_dir + "/merged_nominal.parquet")

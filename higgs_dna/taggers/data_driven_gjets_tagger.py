@@ -13,6 +13,7 @@ from higgs_dna.utils import awkward_utils, misc_utils
 
 DEFAULT_OPTIONS = {
     "sideband_cut" : None,
+    "sideband_min_value" : None,
     "pdf_coeffs" : None,
     "norm_factor" : 1
 }
@@ -82,7 +83,7 @@ class DataDrivenGJetsTagger(Tagger):
 
         
         events["sideband_event"] = awkward.where(
-            (events.Diphoton.max_mvaID > self.options["sideband_cut"]) & (events.Diphoton.min_mvaID < self.options["sideband_cut"]),
+            (events.Diphoton.max_mvaID > self.options["sideband_cut"]) & (events.Diphoton.min_mvaID < self.options["sideband_cut"]) & (events.Diphoton.min_mvaID > self.options["sideband_min_value"]),
             awkward.ones_like(events.event, dtype=bool),
             awkward.zeros_like(events.event, dtype=bool)
         )

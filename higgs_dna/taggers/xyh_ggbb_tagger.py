@@ -219,6 +219,11 @@ class XYHggbbTagger(Tagger):
 
         dijet_mass_cut = events.dijet_mass >= 50. 
 
+        # Add some dipho/pho variables
+        events[("Diphoton", "pt_mgg")] = events.Diphoton.pt / events.Diphoton.mass
+        events[("LeadPhoton", "pt_mgg")] = events.LeadPhoton.pt / events.Diphoton.mass
+        events[("SubleadPhoton", "pt_mgg")] = events.SubleadPhoton.pt / events.Diphoton.mass
+
         presel_cut = pho_id & lepton_veto & n_jet_cut & b_jet_cut & dijet_mass_cut
         self.register_cuts(
             names = ["photon id", "lepton veto", "n_jets >= 2", "1 medium b", "m_jj > 50 GeV", "all cuts"],

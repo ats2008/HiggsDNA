@@ -5,7 +5,7 @@
         "function_name" : "run_analysis"
     },
     "variables_of_interest" : [
-        ["Diphoton", "mass"], ["Diphoton", "pt"], ["Diphoton", "eta"], ["Diphoton", "phi"], ["Diphoton", "helicity"], ["Diphoton", "pt_mgg"], ["Diphoton", "max_mvaID"], ["Diphoton", "min_mvaID"], ["Diphoton", "dPhi"],
+        ["Diphoton", "mass"], ["Diphoton", "pt"], ["Diphoton", "eta"], ["Diphoton", "phi"], ["Diphoton", "helicity"], ["Diphoton", "pt_mgg"], ["Diphoton", "max_mvaID"], ["Diphoton", "min_mvaID"], ["Diphoton", "dPhi"], ["Diphoton", "dR"],
         ["LeadPhoton", "pt"], ["LeadPhoton", "eta"], ["LeadPhoton", "phi"], ["LeadPhoton", "mass"], ["LeadPhoton", "mvaID"], ["LeadPhoton", "genPartFlav"], ["LeadPhoton", "pixelSeed"],
         ["LeadPhoton", "sieie"], ["LeadPhoton", "pfPhoIso03"], ["LeadPhoton", "chargedHadronIso"], ["LeadPhoton", "r9"], ["LeadPhoton", "trkSumPtHollowConeDR03"],
         ["SubleadPhoton", "sieie"], ["SubleadPhoton", "pfPhoIso03"], ["SubleadPhoton", "chargedHadronIso"], ["SubleadPhoton", "r9"], ["SubleadPhoton", "trkSumPtHollowConeDR03"],

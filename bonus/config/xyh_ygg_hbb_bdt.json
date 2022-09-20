@@ -1,0 +1,69 @@
+{
+    "signal": [
+        "NMSSM_XYH_Y_gg_H_bb_MX_600_MY_100",
+        "NMSSM_XYH_Y_gg_H_bb_MX_600_MY_90",
+        "NMSSM_XYH_Y_gg_H_bb_MX_600_MY_95",
+        "NMSSM_XYH_Y_gg_H_bb_MX_650_MY_100",
+        "NMSSM_XYH_Y_gg_H_bb_MX_650_MY_90",
+        "NMSSM_XYH_Y_gg_H_bb_MX_650_MY_95",
+        "NMSSM_XYH_Y_gg_H_bb_MX_700_MY_100",
+        "NMSSM_XYH_Y_gg_H_bb_MX_700_MY_90",
+        "NMSSM_XYH_Y_gg_H_bb_MX_700_MY_95" 
+    ],
+    "background": [
+        "Diphoton",
+        "TTGamma",
+        "TTGG",
+        "WGamma",
+        "ZGamma",
+        "ggH_M125",
+        "VBFH_M125",
+        "VH_M125",
+        "ttH_M125",
+        "GJets_HT-40To100","GJets_HT-100To200","GJets_HT-200To400","GJets_HT-400To600","GJets_HT-600ToInf",
+        "TTJets"
+    ],
+    "features": [
+        "dijet_lead_pt",
+        "dijet_lead_eta",
+        "dijet_lead_btagDeepFlavB",
+        "dijet_sublead_pt",
+        "dijet_sublead_eta",
+        "dijet_sublead_btagDeepFlavB",
+        "dijet_pt",
+        "dijet_eta",
+        "dijet_mass",
+        "dijet_dR",
+        "xcand_pt",
+        "xcand_eta",
+        "xcand_mass",
+        "Diphoton_eta",
+        "Diphoton_pt_mgg",
+        "LeadPhoton_eta",
+        "LeadPhoton_mvaID",
+        "LeadPhoton_pt_mgg",
+        "SubleadPhoton_mvaID",
+        "SubleadPhoton_pt_mgg", 
+        "SubleadPhoton_eta"
+    ],
+    "branches": [
+        "weight_central",
+        "process_id",
+        "Diphoton_mass"
+    ],
+    "preprocess": {
+        "scale_signal": true
+    },
+    "mva": {
+        "type": "binary_classification_bdt",
+        "param": {
+            "max_depth": 4,
+            "eta": 0.1,
+            "objective": "binary:logistic",
+            "nthread": 12
+        },
+        "n_trees": 500,
+        "early_stopping": true,
+        "early_stopping_rounds": 10
+    }
+}

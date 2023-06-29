@@ -1,0 +1,13 @@
+executable = EXECUTABLE
+output = OUTPUT
+error = ERROR
+log = LOG
+
+RequestMemory = REQ_MEMORY
+RequestDisk = REQ_DISK
+RequestCpus = REQ_NCPUS
+
+JobBatchName = BATCH_NAME
++OnExitHold   = ExitStatus != 0
+getenv        = True
+queue 1

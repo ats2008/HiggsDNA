@@ -44,6 +44,8 @@ class JobsManager():
         host = do_cmd("hostname")
         if "t2.ucsd" in host:
             self.host = "UCSD"
+        elif "indiacms" in host:
+            self.host = "indiacms"
         elif "lxplus" in host:
             self.host = "lxplus"
         else:

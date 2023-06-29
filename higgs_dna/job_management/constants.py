@@ -21,6 +21,14 @@ HOST_PARAMS = {
             "condor_base_path" : "/eos/user/USERNAME_INITIAL/USERNAME/HiggsDNA/DIRNAME/",
             "needs_copy_proxy" : True,
             "remote_job" : False
+        },
+        "indiacms" : {
+            "needs_tar" : True,
+            "copy_tar" : "xrd",
+            "xrd_redirector" : ("/grid_mnt/t3storage3/athachay/trippleHiggs/hhhTo4b2g/higgsDNA/scratch/", "/grid_mnt/t3storage3/athachay/trippleHiggs/hhhTo4b2g/higgsDNA/scratch/"),
+            "condor_base_path" : "/grid_mnt/t3storage3/athachay/trippleHiggs/hhhTo4b2g/higgsDNA/scratch/HiggsDNA/DIRNAME/",
+            "needs_copy_proxy" : True,
+            "remote_job" : False
         }
 }
 

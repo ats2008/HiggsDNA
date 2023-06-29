@@ -1,0 +1,217 @@
+{
+    "name" : "diphoton_preselection",
+    "function" : {
+        "module_name" : "higgs_dna.analysis",
+        "function_name" : "run_analysis"
+    },
+    "tag_sequence" : [
+            {
+                "module_name" : "higgs_dna.taggers.diphoton_tagger",
+                "tagger" : "DiphotonTagger",
+		"kwargs" : {
+		    "name" : "diphoton_tagger",
+                    "options" : {
+                        "gen_info" : { "calculate" : true }
+                    }
+		  }
+        },
+        {
+            "module_name" : "higgs_dna.taggers.hhh_ggXFatJet_presel_tagger" ,
+            "tagger" : "HHHgg4bFatJetTagger",
+            "kwargs" : {
+               "name" : "HHHgg4bFatJetTagger",
+               "options" : {
+                   "gen_info" : { "calculate" : true }
+               }
+             }
+        }
+    ],
+    "systematics" : {
+        "weights" : {},
+        "independent_collections" : {}
+    },
+    "samples" : {
+        "catalog" : "metadata/samples/hhh_nanoAODv9.json",
+        "sample_list" : ["Data", "ggHHH_M125","ggBox","ggBox1B","ggBox2B","gJet20To40","gJet40ToInf"],
+        "years" : ["2016", "2017", "2018"]
+    },
+    "variables_of_interest" : [
+        ["Diphoton", "mass"], ["Diphoton", "pt"], ["Diphoton", "eta"], ["Diphoton", "phi"], ["Diphoton", "dR"],
+        ["LeadPhoton", "pt"], ["LeadPhoton", "eta"], ["LeadPhoton", "phi"], ["LeadPhoton", "mass"], ["LeadPhoton", "mvaID"], ["LeadPhoton", "genPartFlav"], ["LeadPhoton", "pixelSeed"],
+        ["SubleadPhoton", "pt"], ["SubleadPhoton", "eta"], ["SubleadPhoton", "phi"], ["SubleadPhoton", "mass"], ["SubleadPhoton", "mvaID"], ["SubleadPhoton", "genPartFlav"], ["SubleadPhoton", "pixelSeed"],
+        
+        "GenHggHiggs_pt", "GenHggHiggs_eta", "GenHggHiggs_phi", "GenHggHiggs_mass", "GenHggHiggs_dR",
+        "GenHggHiggs_pt","GenHggHiggs_eta","GenHggHiggs_phi","GenHggHiggs_mass","GenHggHiggs_dR", 
+        "GenHbbHiggs_1_pt","GenHbbHiggs_1_eta","GenHbbHiggs_1_phi","GenHbbHiggs_1_mass","GenHbbHiggs_1_dR", 
+        "GenHbbHiggs_2_pt","GenHbbHiggs_2_eta","GenHbbHiggs_2_phi","GenHbbHiggs_2_mass","GenHbbHiggs_2_dR", 
+        "GenHggLeadPhoton_pt","GenHggLeadPhoton_eta","GenHggLeadPhoton_phi","GenHggLeadPhoton_mass","GenHggLeadPhoton_dR", 
+        "GenHbbLeadB_1_pt","GenHbbLeadB_1_eta","GenHbbLeadB_1_phi","GenHbbLeadB_1_mass","GenHbbLeadB", 
+        "GenHbbLeadB_2_pt","GenHbbLeadB_2_eta","GenHbbLeadB_2_phi","GenHbbLeadB_2_mass","GenHbbLeadB", 
+        "GenHggSubleadPhoton_pt","GenHggSubleadPhoton_eta","GenHggSubleadPhoton_phi","GenHggSubleadPhoton_mass","GenHggSubleadPhoton_dR", 
+        "GenHbbSubleadB_1_pt","GenHbbSubleadB_1_eta","GenHbbSubleadB_1_phi","GenHbbSubleadB_1_mass","GenHbbSubleadB", 
+        "GenHbbSubleadB_2_pt","GenHbbSubleadB_2_eta","GenHbbSubleadB_2_phi","GenHbbSubleadB_2_mass","GenHbbSubleadB", 
+        
+        "jet_1_area","jet_1_bRegCorr","jet_1_bRegRes","jet_1_btagDeepB","jet_1_btagDeepCvB","jet_1_btagDeepCvL",
+        "jet_1_btagDeepFlavB","jet_1_btagDeepFlavQG","jet_1_eta","jet_1_hadronFlavour","jet_1_jetId","jet_1_mass",
+        "jet_1_nConstituents","jet_1_nElectrons","jet_1_nMuons","jet_1_neEmEF","jet_1_neHEF","jet_1_partonFlavour",
+        "jet_1_phi","jet_1_pt","jet_1_puId","jet_1_puIdDisc","jet_1_qgl","jet_1_rawFactor",
+        
+        "jet_2_area","jet_2_bRegCorr","jet_2_bRegRes","jet_2_btagDeepB","jet_2_btagDeepCvB","jet_2_btagDeepCvL",
+        "jet_2_btagDeepFlavB","jet_2_btagDeepFlavQG","jet_2_eta","jet_2_hadronFlavour","jet_2_jetId","jet_2_mass",
+        "jet_2_nConstituents","jet_2_nElectrons","jet_2_nMuons","jet_2_neEmEF","jet_2_neHEF","jet_2_partonFlavour",
+        "jet_2_phi","jet_2_pt","jet_2_puId","jet_2_puIdDisc","jet_2_qgl","jet_2_rawFactor",
+        
+        "jet_3_area","jet_3_bRegCorr","jet_3_bRegRes","jet_3_btagDeepB","jet_3_btagDeepCvB","jet_3_btagDeepCvL",
+        "jet_3_btagDeepFlavB","jet_3_btagDeepFlavQG","jet_3_eta","jet_3_hadronFlavour","jet_3_jetId","jet_3_mass",
+        "jet_3_nConstituents","jet_3_nElectrons","jet_3_nMuons","jet_3_neEmEF","jet_3_neHEF","jet_3_partonFlavour",
+        "jet_3_phi","jet_3_pt","jet_3_puId","jet_3_puIdDisc","jet_3_qgl","jet_3_rawFactor",
+        
+        "jet_4_area","jet_4_bRegCorr","jet_4_bRegRes","jet_4_btagDeepB","jet_4_btagDeepCvB","jet_4_btagDeepCvL",
+        "jet_4_btagDeepFlavB","jet_4_btagDeepFlavQG","jet_4_eta","jet_4_hadronFlavour","jet_4_jetId","jet_4_mass",
+        "jet_4_nConstituents","jet_4_nElectrons","jet_4_nMuons","jet_4_neEmEF","jet_4_neHEF","jet_4_partonFlavour",
+        "jet_4_phi","jet_4_pt","jet_4_puId","jet_4_puIdDisc","jet_4_qgl","jet_4_rawFactor",
+        
+        "jet_5_area","jet_5_bRegCorr","jet_5_bRegRes","jet_5_btagDeepB","jet_5_btagDeepCvB","jet_5_btagDeepCvL",
+        "jet_5_btagDeepFlavB","jet_5_btagDeepFlavQG","jet_5_eta","jet_5_hadronFlavour","jet_5_jetId","jet_5_mass",
+        "jet_5_nConstituents","jet_5_nElectrons","jet_5_nMuons","jet_5_neEmEF","jet_5_neHEF","jet_5_partonFlavour",
+        "jet_5_phi","jet_5_pt","jet_5_puId","jet_5_puIdDisc","jet_5_qgl","jet_5_rawFactor",
+        
+        "jet_6_area","jet_6_bRegCorr","jet_6_bRegRes","jet_6_btagDeepB","jet_6_btagDeepCvB","jet_6_btagDeepCvL",
+        "jet_6_btagDeepFlavB","jet_6_btagDeepFlavQG","jet_6_eta","jet_6_hadronFlavour","jet_6_jetId","jet_6_mass",
+        "jet_6_nConstituents","jet_6_nElectrons","jet_6_nMuons","jet_6_neEmEF","jet_6_neHEF","jet_6_partonFlavour",
+        "jet_6_phi","jet_6_pt","jet_6_puId","jet_6_puIdDisc","jet_6_qgl","jet_6_rawFactor",
+        
+        "jet_7_area","jet_7_bRegCorr","jet_7_bRegRes","jet_7_btagDeepB","jet_7_btagDeepCvB","jet_7_btagDeepCvL",
+        "jet_7_btagDeepFlavB","jet_7_btagDeepFlavQG","jet_7_eta","jet_7_hadronFlavour","jet_7_jetId","jet_7_mass",
+        "jet_7_nConstituents","jet_7_nElectrons","jet_7_nMuons","jet_7_neEmEF","jet_7_neHEF","jet_7_partonFlavour",
+        "jet_7_phi","jet_7_pt","jet_7_puId","jet_7_puIdDisc","jet_7_qgl","jet_7_rawFactor",
+        
+        "jet_8_area","jet_8_bRegCorr","jet_8_bRegRes","jet_8_btagDeepB","jet_8_btagDeepCvB","jet_8_btagDeepCvL",
+        "jet_8_btagDeepFlavB","jet_8_btagDeepFlavQG","jet_8_eta","jet_8_hadronFlavour","jet_8_jetId","jet_8_mass",
+        "jet_8_nConstituents","jet_8_nElectrons","jet_8_nMuons","jet_8_neEmEF","jet_8_neHEF","jet_8_partonFlavour",
+        "jet_8_phi","jet_8_pt","jet_8_puId","jet_8_puIdDisc","jet_8_qgl","jet_8_rawFactor",
+         
+        "fatjet_1_area","fatjet_1_btagCSVV2","fatjet_1_btagDDBvLV2","fatjet_1_btagDDCvBV2","fatjet_1_btagDDCvLV2",
+        "fatjet_1_btagDeepB","fatjet_1_btagHbb","fatjet_1_deepTagMD_H4qvsQCD","fatjet_1_deepTagMD_HbbvsQCD",
+        "fatjet_1_deepTagMD_TvsQCD","fatjet_1_deepTagMD_WvsQCD","fatjet_1_deepTagMD_ZHbbvsQCD","fatjet_1_deepTagMD_ZHccvsQCD",
+        "fatjet_1_deepTagMD_ZbbvsQCD","fatjet_1_deepTagMD_ZvsQCD","fatjet_1_deepTagMD_bbvsLight","fatjet_1_deepTagMD_ccvsLight",
+        "fatjet_1_deepTag_H","fatjet_1_deepTag_QCD","fatjet_1_deepTag_QCDothers","fatjet_1_deepTag_TvsQCD","fatjet_1_deepTag_WvsQCD",
+        "fatjet_1_deepTag_ZvsQCD","fatjet_1_eta",
+        "fatjet_1_hadronFlavour","fatjet_1_jetId","fatjet_1_lsf3","fatjet_1_mass","fatjet_1_msoftdrop","fatjet_1_muonIdx3SJ",
+        "fatjet_1_n2b1","fatjet_1_n3b1","fatjet_1_nBHadrons","fatjet_1_nCHadrons","fatjet_1_nConstituents",
+        "fatjet_1_particleNetMD_QCD","fatjet_1_particleNetMD_Xbb","fatjet_1_particleNetMD_Xcc","fatjet_1_particleNetMD_Xqq",
+        "fatjet_1_particleNet_H4qvsQCD","fatjet_1_particleNet_HbbvsQCD","fatjet_1_particleNet_HccvsQCD","fatjet_1_particleNet_QCD",
+        "fatjet_1_particleNet_TvsQCD","fatjet_1_particleNet_WvsQCD","fatjet_1_particleNet_ZvsQCD","fatjet_1_particleNet_mass",
+        "fatjet_1_phi","fatjet_1_pt","fatjet_1_rawFactor","fatjet_1_subJetIdx1","fatjet_1_subJetIdx2",
+        "fatjet_1_tau1","fatjet_1_tau2","fatjet_1_tau3","fatjet_1_tau4",
+        
+        "fatjet_2_area","fatjet_2_btagCSVV2","fatjet_2_btagDDBvLV2","fatjet_2_btagDDCvBV2","fatjet_2_btagDDCvLV2",
+        "fatjet_2_btagDeepB","fatjet_2_btagHbb","fatjet_2_deepTagMD_H4qvsQCD","fatjet_2_deepTagMD_HbbvsQCD",
+        "fatjet_2_deepTagMD_TvsQCD","fatjet_2_deepTagMD_WvsQCD","fatjet_2_deepTagMD_ZHbbvsQCD","fatjet_2_deepTagMD_ZHccvsQCD",
+        "fatjet_2_deepTagMD_ZbbvsQCD","fatjet_2_deepTagMD_ZvsQCD","fatjet_2_deepTagMD_bbvsLight","fatjet_2_deepTagMD_ccvsLight",
+        "fatjet_2_deepTag_H","fatjet_2_deepTag_QCD","fatjet_2_deepTag_QCDothers","fatjet_2_deepTag_TvsQCD","fatjet_2_deepTag_WvsQCD",
+        "fatjet_2_deepTag_ZvsQCD","fatjet_2_eta",
+        "fatjet_2_hadronFlavour","fatjet_2_jetId","fatjet_2_lsf3","fatjet_2_mass","fatjet_2_msoftdrop","fatjet_2_muonIdx3SJ",
+        "fatjet_2_n2b1","fatjet_2_n3b1","fatjet_2_nBHadrons","fatjet_2_nCHadrons","fatjet_2_nConstituents",
+        "fatjet_2_particleNetMD_QCD","fatjet_2_particleNetMD_Xbb","fatjet_2_particleNetMD_Xcc","fatjet_2_particleNetMD_Xqq",
+        "fatjet_2_particleNet_H4qvsQCD","fatjet_2_particleNet_HbbvsQCD","fatjet_2_particleNet_HccvsQCD","fatjet_2_particleNet_QCD",
+        "fatjet_2_particleNet_TvsQCD","fatjet_2_particleNet_WvsQCD","fatjet_2_particleNet_ZvsQCD","fatjet_2_particleNet_mass",
+        "fatjet_2_phi","fatjet_2_pt","fatjet_2_rawFactor","fatjet_2_subJetIdx1","fatjet_2_subJetIdx2",
+        "fatjet_2_tau1","fatjet_2_tau2","fatjet_2_tau3","fatjet_2_tau4",
+        
+        "fatjet_3_area","fatjet_3_btagCSVV2","fatjet_3_btagDDBvLV2","fatjet_3_btagDDCvBV2","fatjet_3_btagDDCvLV2",
+        "fatjet_3_btagDeepB","fatjet_3_btagHbb","fatjet_3_deepTagMD_H4qvsQCD","fatjet_3_deepTagMD_HbbvsQCD",
+        "fatjet_3_deepTagMD_TvsQCD","fatjet_3_deepTagMD_WvsQCD","fatjet_3_deepTagMD_ZHbbvsQCD","fatjet_3_deepTagMD_ZHccvsQCD",
+        "fatjet_3_deepTagMD_ZbbvsQCD","fatjet_3_deepTagMD_ZvsQCD","fatjet_3_deepTagMD_bbvsLight","fatjet_3_deepTagMD_ccvsLight",
+        "fatjet_3_deepTag_H","fatjet_3_deepTag_QCD","fatjet_3_deepTag_QCDothers","fatjet_3_deepTag_TvsQCD","fatjet_3_deepTag_WvsQCD",
+        "fatjet_3_deepTag_ZvsQCD","fatjet_3_eta",
+        "fatjet_3_hadronFlavour","fatjet_3_jetId","fatjet_3_lsf3","fatjet_3_mass","fatjet_3_msoftdrop","fatjet_3_muonIdx3SJ",
+        "fatjet_3_n2b1","fatjet_3_n3b1","fatjet_3_nBHadrons","fatjet_3_nCHadrons","fatjet_3_nConstituents",
+        "fatjet_3_particleNetMD_QCD","fatjet_3_particleNetMD_Xbb","fatjet_3_particleNetMD_Xcc","fatjet_3_particleNetMD_Xqq",
+        "fatjet_3_particleNet_H4qvsQCD","fatjet_3_particleNet_HbbvsQCD","fatjet_3_particleNet_HccvsQCD","fatjet_3_particleNet_QCD",
+        "fatjet_3_particleNet_TvsQCD","fatjet_3_particleNet_WvsQCD","fatjet_3_particleNet_ZvsQCD","fatjet_3_particleNet_mass",
+        "fatjet_3_phi","fatjet_3_pt","fatjet_3_rawFactor","fatjet_3_subJetIdx1","fatjet_3_subJetIdx2",
+        "fatjet_3_tau1","fatjet_3_tau2","fatjet_3_tau3","fatjet_3_tau4",
+        
+        "fatjet_4_area","fatjet_4_btagCSVV2","fatjet_4_btagDDBvLV2","fatjet_4_btagDDCvBV2","fatjet_4_btagDDCvLV2",
+        "fatjet_4_btagDeepB","fatjet_4_btagHbb","fatjet_4_deepTagMD_H4qvsQCD","fatjet_4_deepTagMD_HbbvsQCD",
+        "fatjet_4_deepTagMD_TvsQCD","fatjet_4_deepTagMD_WvsQCD","fatjet_4_deepTagMD_ZHbbvsQCD","fatjet_4_deepTagMD_ZHccvsQCD",
+        "fatjet_4_deepTagMD_ZbbvsQCD","fatjet_4_deepTagMD_ZvsQCD","fatjet_4_deepTagMD_bbvsLight","fatjet_4_deepTagMD_ccvsLight",
+        "fatjet_4_deepTag_H","fatjet_4_deepTag_QCD","fatjet_4_deepTag_QCDothers","fatjet_4_deepTag_TvsQCD","fatjet_4_deepTag_WvsQCD",
+        "fatjet_4_deepTag_ZvsQCD","fatjet_4_eta",
+        "fatjet_4_hadronFlavour","fatjet_4_jetId","fatjet_4_lsf3","fatjet_4_mass","fatjet_4_msoftdrop","fatjet_4_muonIdx3SJ",
+        "fatjet_4_n2b1","fatjet_4_n3b1","fatjet_4_nBHadrons","fatjet_4_nCHadrons","fatjet_4_nConstituents",
+        "fatjet_4_particleNetMD_QCD","fatjet_4_particleNetMD_Xbb","fatjet_4_particleNetMD_Xcc","fatjet_4_particleNetMD_Xqq",
+        "fatjet_4_particleNet_H4qvsQCD","fatjet_4_particleNet_HbbvsQCD","fatjet_4_particleNet_HccvsQCD","fatjet_4_particleNet_QCD",
+        "fatjet_4_particleNet_TvsQCD","fatjet_4_particleNet_WvsQCD","fatjet_4_particleNet_ZvsQCD","fatjet_4_particleNet_mass",
+        "fatjet_4_phi","fatjet_4_pt","fatjet_4_rawFactor","fatjet_4_subJetIdx1","fatjet_4_subJetIdx2",
+        "fatjet_4_tau1","fatjet_4_tau2","fatjet_4_tau3","fatjet_4_tau4",
+        
+        "fatjet_5_area","fatjet_5_btagCSVV2","fatjet_5_btagDDBvLV2","fatjet_5_btagDDCvBV2","fatjet_5_btagDDCvLV2",
+        "fatjet_5_btagDeepB","fatjet_5_btagHbb","fatjet_5_deepTagMD_H4qvsQCD","fatjet_5_deepTagMD_HbbvsQCD",
+        "fatjet_5_deepTagMD_TvsQCD","fatjet_5_deepTagMD_WvsQCD","fatjet_5_deepTagMD_ZHbbvsQCD","fatjet_5_deepTagMD_ZHccvsQCD",
+        "fatjet_5_deepTagMD_ZbbvsQCD","fatjet_5_deepTagMD_ZvsQCD","fatjet_5_deepTagMD_bbvsLight","fatjet_5_deepTagMD_ccvsLight",
+        "fatjet_5_deepTag_H","fatjet_5_deepTag_QCD","fatjet_5_deepTag_QCDothers","fatjet_5_deepTag_TvsQCD","fatjet_5_deepTag_WvsQCD",
+        "fatjet_5_deepTag_ZvsQCD","fatjet_5_eta",
+        "fatjet_5_hadronFlavour","fatjet_5_jetId","fatjet_5_lsf3","fatjet_5_mass","fatjet_5_msoftdrop","fatjet_5_muonIdx3SJ",
+        "fatjet_5_n2b1","fatjet_5_n3b1","fatjet_5_nBHadrons","fatjet_5_nCHadrons","fatjet_5_nConstituents",
+        "fatjet_5_particleNetMD_QCD","fatjet_5_particleNetMD_Xbb","fatjet_5_particleNetMD_Xcc","fatjet_5_particleNetMD_Xqq",
+        "fatjet_5_particleNet_H4qvsQCD","fatjet_5_particleNet_HbbvsQCD","fatjet_5_particleNet_HccvsQCD","fatjet_5_particleNet_QCD",
+        "fatjet_5_particleNet_TvsQCD","fatjet_5_particleNet_WvsQCD","fatjet_5_particleNet_ZvsQCD","fatjet_5_particleNet_mass",
+        "fatjet_5_phi","fatjet_5_pt","fatjet_5_rawFactor","fatjet_5_subJetIdx1","fatjet_5_subJetIdx2",
+        "fatjet_5_tau1","fatjet_5_tau2","fatjet_5_tau3","fatjet_5_tau4",
+        
+        "fatjet_6_area","fatjet_6_btagCSVV2","fatjet_6_btagDDBvLV2","fatjet_6_btagDDCvBV2","fatjet_6_btagDDCvLV2",
+        "fatjet_6_btagDeepB","fatjet_6_btagHbb","fatjet_6_deepTagMD_H4qvsQCD","fatjet_6_deepTagMD_HbbvsQCD",
+        "fatjet_6_deepTagMD_TvsQCD","fatjet_6_deepTagMD_WvsQCD","fatjet_6_deepTagMD_ZHbbvsQCD","fatjet_6_deepTagMD_ZHccvsQCD",
+        "fatjet_6_deepTagMD_ZbbvsQCD","fatjet_6_deepTagMD_ZvsQCD","fatjet_6_deepTagMD_bbvsLight","fatjet_6_deepTagMD_ccvsLight",
+        "fatjet_6_deepTag_H","fatjet_6_deepTag_QCD","fatjet_6_deepTag_QCDothers","fatjet_6_deepTag_TvsQCD","fatjet_6_deepTag_WvsQCD",
+        "fatjet_6_deepTag_ZvsQCD","fatjet_6_eta",
+        "fatjet_6_hadronFlavour","fatjet_6_jetId","fatjet_6_lsf3","fatjet_6_mass","fatjet_6_msoftdrop","fatjet_6_muonIdx3SJ",
+        "fatjet_6_n2b1","fatjet_6_n3b1","fatjet_6_nBHadrons","fatjet_6_nCHadrons","fatjet_6_nConstituents",
+        "fatjet_6_particleNetMD_QCD","fatjet_6_particleNetMD_Xbb","fatjet_6_particleNetMD_Xcc","fatjet_6_particleNetMD_Xqq",
+        "fatjet_6_particleNet_H4qvsQCD","fatjet_6_particleNet_HbbvsQCD","fatjet_6_particleNet_HccvsQCD","fatjet_6_particleNet_QCD",
+        "fatjet_6_particleNet_TvsQCD","fatjet_6_particleNet_WvsQCD","fatjet_6_particleNet_ZvsQCD","fatjet_6_particleNet_mass",
+        "fatjet_6_phi","fatjet_6_pt","fatjet_6_rawFactor","fatjet_6_subJetIdx1","fatjet_6_subJetIdx2",
+        "fatjet_6_tau1","fatjet_6_tau2","fatjet_6_tau3","fatjet_6_tau4",
+        
+        "n_jets",
+        "n_fatjets",
+
+        
+        "weight_central",
+        "event"
+    ],
+    "branches" : [
+            "Photon_pt", "Photon_eta", "Photon_phi", "Photon_mass",
+            "Photon_pixelSeed", "Photon_mvaID", "Photon_electronVeto",
+            "Photon_sieie",
+            "Photon_r9", "Photon_hoe", "Photon_pfRelIso03_chg", "Photon_pfRelIso03_all",
+            "Photon_isScEtaEB", "Photon_isScEtaEE",
+            "Photon_trkSumPtHollowConeDR03", "Photon_photonIso", "Photon_chargedHadronIso",
+            "Photon_genPartFlav",
+            "GenPart_eta", "GenPart_genPartIdxMother", "GenPart_mass", "GenPart_pdgId", "GenPart_phi", "GenPart_pt", "GenPart_status","GenPart_statusFlags",
+            "genWeight", "run", "event", "fixedGridRhoAll" ,"luminosityBlock",
+            "MET_pt","MET_phi",
+            
+            "Jet_area","Jet_bRegCorr","Jet_bRegRes","Jet_btagDeepB","Jet_btagDeepCvB","Jet_btagDeepCvL",
+            "Jet_btagDeepFlavB","Jet_btagDeepFlavQG","Jet_eta","Jet_hadronFlavour","Jet_jetId","Jet_mass",
+            "Jet_nConstituents","Jet_nElectrons","Jet_nMuons","Jet_neEmEF","Jet_neHEF","Jet_partonFlavour",
+            "Jet_phi","Jet_pt","Jet_puId","Jet_puIdDisc","Jet_qgl","Jet_rawFactor",
+            
+            "FatJet_area","FatJet_btagCSVV2","FatJet_btagDDBvLV2","FatJet_btagDDCvBV2","FatJet_btagDDCvLV2",
+            "FatJet_btagDeepB","FatJet_btagHbb","FatJet_deepTagMD_H4qvsQCD","FatJet_deepTagMD_HbbvsQCD",
+            "FatJet_deepTagMD_TvsQCD","FatJet_deepTagMD_WvsQCD","FatJet_deepTagMD_ZHbbvsQCD","FatJet_deepTagMD_ZHccvsQCD","FatJet_deepTagMD_ZbbvsQCD",
+            "FatJet_deepTagMD_ZvsQCD","FatJet_deepTagMD_bbvsLight","FatJet_deepTagMD_ccvsLight","FatJet_deepTag_H",
+            "FatJet_deepTag_QCD","FatJet_deepTag_QCDothers","FatJet_deepTag_TvsQCD","FatJet_deepTag_WvsQCD","FatJet_deepTag_ZvsQCD",
+            "FatJet_pt", "FatJet_eta", "FatJet_phi", "FatJet_mass", "FatJet_", "FatJet_JetId", "FatJet_hadronFlavour",
+            "FatJet_hadronFlavour","FatJet_jetId","FatJet_lsf3","FatJet_mass","FatJet_msoftdrop","FatJet_muonIdx3SJ",
+            "FatJet_n2b1","FatJet_n3b1","FatJet_nBHadrons","FatJet_nCHadrons","FatJet_nConstituents",
+            "FatJet_particleNetMD_QCD","FatJet_particleNetMD_Xbb","FatJet_particleNetMD_Xcc","FatJet_particleNetMD_Xqq",
+            "FatJet_particleNet_H4qvsQCD","FatJet_particleNet_HbbvsQCD","FatJet_particleNet_HccvsQCD","FatJet_particleNet_QCD",
+            "FatJet_particleNet_TvsQCD","FatJet_particleNet_WvsQCD","FatJet_particleNet_ZvsQCD","FatJet_particleNet_mass",
+            "FatJet_phi","FatJet_pt","FatJet_rawFactor","FatJet_subJetIdx1","FatJet_subJetIdx2",
+            "FatJet_tau1","FatJet_tau2","FatJet_tau3","FatJet_tau4","nFatJet"
+
+    ]
+}

@@ -1,0 +1,66 @@
+{
+    "ggHHH_M125" : {
+        "xs" : 0.001,
+        "bf" : 1.0,
+        "files" : {
+            "2016" : ["/eos/home-a/athachay/workarea/trippleHiggs/nanoAODSamples/HHHTo4B2G_c3_0_d4_0_RunIISummer20UL16NanoAODAPVv9.root"],
+            "2017" : ["/eos/home-a/athachay/workarea/trippleHiggs/nanoAODSamples/HHHTo4B2G_c3_0_d4_0_RunIISummer20UL17NanoAODv9.root"],
+            "2018" : ["/HHHTo4B2G_c3_0_d4_0_TuneCP5_13TeV-amcatnlo-pythia8/RunIISummer20UL18NanoAODv9-106X_upgrade2018_realistic_v16_L1v1-v1/NANOAODSIM"]
+        }
+    },
+
+    "ggBox" : {
+        "xs" : 303.2,
+        "bf" : 1.0,
+        "files" : {
+        "2018" : ["/DiPhotonJetsBox_MGG-80toInf_13TeV-sherpa/RunIISummer20UL18NanoAODv9-106X_upgrade2018_realistic_v16_L1v1-v1/NANOAODSIM"]
+       }
+    },
+   
+    "ggBox1B" : {
+        "xs" : 0.8674276,
+        "bf" : 1.0,
+        "files" : {
+        "2018" : ["/DiPhotonJetsBox1BJet_MGG-80toInf_13TeV-sherpa/RunIISummer20UL18NanoAODv9-106X_upgrade2018_realistic_v16_L1v1-v1/NANOAODSIM"]
+       }
+    },
+    
+    "ggBox2B" : {
+        "xs" : 0.494,
+        "bf" : 1.0,
+        "files" : {
+        "2018" : ["/DiPhotonJetsBox2BJets_MGG-80toInf_13TeV-sherpa/RunIISummer20UL18NanoAODv9-106X_upgrade2018_realistic_v16_L1v1-v1/NANOAODSIM"]
+       }
+    },
+    "gJet20To40" : {
+        "xs" : 232.9,
+        "bf" : 1.0,
+        "files" : {
+        "2018" : ["/GJet_Pt-20to40_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8/RunIISummer20UL18NanoAODv9-106X_upgrade2018_realistic_v16_L1v1-v1/NANOAODSIM"]
+       }
+    },
+    "gJet40ToInf" : {
+        "xs" : 872.1,
+        "bf" : 1.0,
+        "files" : {
+        "2018" : ["/GJet_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8/RunIISummer19UL18NanoAODv2-106X_upgrade2018_realistic_v15_L1v1-v1/NANOAODSIM"]
+       }
+    },
+     
+    "Data" : {
+        "fpo" : 1,
+        "files" : {
+            "2016" : [
+                        "/eos/home-a/athachay/workarea/trippleHiggs/nanoAODSamples/data_Run2016H_UL2016_MiniAODv2_NanoAODv9-v1.root"
+            ],
+            "2017" : [
+                        "/eos/home-a/athachay/workarea/trippleHiggs/nanoAODSamples/data_Run2017F_UL2017_MiniAODv2_NanoAODv9-v1.root"
+            ],
+            "2018" : [
+                        "/EGamma/Run2018D-UL2018_MiniAODv2_NanoAODv9-v3/NANOAOD"
+            ]
+        }
+    }
+}
+
+

@@ -143,6 +143,8 @@ class Task():
             for syst_tag, output in self.merged_outputs.items():
                 if not os.path.exists(output):
                     logger.warning("[Task : process] A file may have been deleted. Task '%s' was marked as complete, but output '%s' is not present." % (self.name, output))
+                    logger.warning("[Task : process] A file may have been deleted. Task '%s' was marked as complete, but output '%s' is being remade" % (self.name, output))
+                    self.merge_outputs()
             if not self.merged_output_files:
                 self.merge_outputs()
             return

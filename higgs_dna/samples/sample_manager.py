@@ -42,6 +42,7 @@ class SampleManager():
         # Loop through each sample
         logger.info("[SampleManager : get_samples] Fetching input files for %d samples." % (len(self.sample_list)))
         for s_idx, sample in enumerate(tqdm(self.sample_list)):
+            print("45")
             if sample not in self.catalog.keys():
                 logger.exception("[SampleManager : get_samples] Could not find sample '%s' in samples catalog." % (sample))
                 raise ValueError()
@@ -240,7 +241,8 @@ class SampleManager():
             f = j["file"][0]
             files.append(
                     File(
-                        name = "root://cmsxrootd.fnal.gov/" + f["name"],
+                        #name = "root://cmsxrootd.fnal.gov/" + f["name"],
+                        name = "root://cms-xrd-global.cern.ch/" + f["name"],
                         is_data = is_data,
                         n_events = f["nevents"],
                         size_gb = round(f["size"]*1e-9,2) 

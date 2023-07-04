@@ -315,7 +315,7 @@ class CondorJob(Job):
         self.wrote_condor_files = True
 
 
-    def update_file(self, old, new, replacement_map):
+    def update_file(self, old, new, replacement_map,makeExecutable = False):
         """
         Reads in the lines from a file ``old``, takes each ``key`` and ``value`` from replacement map and replaces each instance of ``key`` with ``value``, and writes the resulting file out to ``new``.
 
@@ -336,6 +336,8 @@ class CondorJob(Job):
 
         with open(new, "w") as f_out:
             f_out.write(lines)
+        if makeExecutable:
+            os.system('chmod +x '+new)
 
 
     def write_condor_executable_file(self):
@@ -365,7 +367,8 @@ class CondorJob(Job):
         self.update_file(
                 old = self.condor_exe_template,
                 new = self.condor_executable_file,
-                replacement_map = replacement_map
+                replacement_map = replacement_map,
+                makeExecutable=True
         )
 
 
